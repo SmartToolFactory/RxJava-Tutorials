@@ -22,6 +22,20 @@ private fun testObservableCreate() {
         emitter.onComplete()
     }
 
+
+//    // INFO Method1 Subscribe with Consumer object onNext
+//    source.subscribe(object : Consumer<String> {
+//        override fun accept(s: String) {
+//        }
+//
+//    })
+//
+//    // INFO Method2 Subscribe with Consumer onNext
+//    source.subscribe(Consumer<String> {
+//
+//    })
+
+    // INFO Method3 Subscribe with Lambda onNext
     source.subscribe { s -> println("RECEIVED: $s") }
 }
 
@@ -74,14 +88,16 @@ private fun testObservableWithOperator() {
 
     val filtered = lengths.filter({ i -> i >= 5 })
 
-    filtered.subscribe({ s ->
-        // onNext
-        println("RECEIVED: $s")
-    },
+    filtered.subscribe(
+        { s ->
+            // onNext
+            println("RECEIVED: $s")
+        },
         { throwable ->
             // onError
             println(throwable.stackTrace)
-        })
+        }
+    )
 
 }
 

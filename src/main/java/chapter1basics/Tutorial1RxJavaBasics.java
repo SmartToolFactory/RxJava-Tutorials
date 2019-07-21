@@ -1,14 +1,16 @@
-package basics;
+package chapter1basics;
 
-import io.reactivex.Observable;
-import io.reactivex.Observer;
-import io.reactivex.Single;
+import io.reactivex.*;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.Cancellable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -27,9 +29,14 @@ public class Tutorial1RxJavaBasics {
 
 //        testObservable();
 
+
+//        testCreate();
+
 //        testFromIterable();
 
-        testMultipleSubscribtion();
+//        testMultipleSubscription();
+
+        testMapOperator();
     }
 
 
@@ -89,17 +96,18 @@ public class Tutorial1RxJavaBasics {
 
         // TODO Accept
         Disposable disposable = observableString
-                .subscribe(new Consumer<String>() {
-                    @Override
-                    public void accept(String s) throws Exception {
-                        System.out.println("Res: " + s + ", Thread: " + Thread.currentThread().getName());
-                    }
-                }, new Consumer<Throwable>() {
-                    @Override
-                    public void accept(Throwable throwable) throws Exception {
+                .subscribe(
+                        new Consumer<String>() {
+                            @Override
+                            public void accept(String s) throws Exception {
+                                System.out.println("Res: " + s + ", Thread: " + Thread.currentThread().getName());
+                            }
+                        }, new Consumer<Throwable>() {
+                            @Override
+                            public void accept(Throwable throwable) throws Exception {
 
-                    }
-                });
+                            }
+                        });
 
 
         // TODO SubscribeWith
@@ -136,6 +144,7 @@ public class Tutorial1RxJavaBasics {
 //
 //            }
 //        });
+
 
         // TODO subscribe
         Observable<String> observable = Observable.create(emitter -> {
@@ -192,27 +201,45 @@ public class Tutorial1RxJavaBasics {
                 });
 
 
-        Observer observer = new Observer() {
+    }
+
+    private static void testCreate() {
+        Observable<String> observable = Observable.create(new ObservableOnSubscribe<String>() {
             @Override
-            public void onSubscribe(Disposable d) {
+            public void subscribe(ObservableEmitter<String> emitter) throws Exception {
+                emitter.onNext("One");
+                emitter.onNext("Two");
+                emitter.onNext("Three");
 
+                emitter.onComplete();
+
+                emitter.setCancellable(new Cancellable() {
+                    @Override
+                    public void cancel() throws Exception {
+                        System.out.println("ObservableEmitter cancel()");
+                    }
+                });
             }
+        });
 
-            @Override
-            public void onNext(Object o) {
 
-            }
-
-            @Override
-            public void onError(Throwable e) {
-
-            }
-
-            @Override
-            public void onComplete() {
-
-            }
-        };
+        observable.subscribe(
+                new Consumer<String>() {
+                    @Override
+                    public void accept(String s) throws Exception {
+                        System.out.println("Observable onNext(): " + s);
+                    }
+                }, new Consumer<Throwable>() {
+                    @Override
+                    public void accept(Throwable throwable) throws Exception {
+                        System.out.println("Observable onError() " + throwable.getMessage());
+                    }
+                }, new Action() {
+                    @Override
+                    public void run() throws Exception {
+                        System.out.println("Observable onComplete()");
+                    }
+                });
     }
 
 
@@ -245,14 +272,13 @@ public class Tutorial1RxJavaBasics {
 
         disposable.dispose();
 
-
     }
 
 
     /**
-     * Cold Observable with multiple subscribtions
+     * Cold Observable with multiple subscriptions
      */
-    private static void testMultipleSubscribtion() {
+    private static void testMultipleSubscription() {
 
         // INFO 🔥
         Observable<String> source = Observable.just("Value1", "Value2", "Value3");
@@ -273,7 +299,6 @@ public class Tutorial1RxJavaBasics {
 
     private void setTimer(Observable<Long> seconds) {
 
-
         if (timerRunning) {
             Observable<Long> longObservable = seconds.unsubscribeOn(Schedulers.computation());
             disposable.dispose();
@@ -291,6 +316,13 @@ public class Tutorial1RxJavaBasics {
                 .subscribe(l ->
                         System.out.println("Observer 1: " + l
                                 + ", thread: " + Thread.currentThread().getName()));
+    }
+
+    private static void testMapOperator() {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("M/d/yyyy");
+                Observable.just("1/3/2016", "5/9/2016", "10/12/2016")
+                        .map(s -> LocalDate.parse(s, dtf))
+                        .subscribe(i -> System.out.println("RECEIVED: " + i));
     }
 }
 

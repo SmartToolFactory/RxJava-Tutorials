@@ -10,7 +10,6 @@ public class Tutorial2_2ObserverInterface {
 
         testObserver();
         testObserverLambda();
-
     }
 
 
@@ -70,5 +69,7 @@ public class Tutorial2_2ObserverInterface {
                         () -> System.out.println("Done!")
                 );
     }
+
 }
+
 

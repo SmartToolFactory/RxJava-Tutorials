@@ -5,13 +5,17 @@ import io.reactivex.ObservableEmitter
 import io.reactivex.ObservableOnSubscribe
 import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
+import io.reactivex.functions.Consumer
+import io.reactivex.schedulers.Schedulers
 
+private var timerRunning = false
+private var disposable: Disposable? = null
 
 fun main() {
 
 //    observableJust()
 
-    observableCreate()
+    observableCreate2()
 
 //    observableFromArray()
 }
@@ -47,11 +51,40 @@ private fun observableJust() {
 }
 
 
+private fun testCreate() {
+    val observable = Observable.create(ObservableOnSubscribe<String> { emitter ->
+        emitter.onNext("One")
+        emitter.onNext("Two")
+        emitter.onNext("Three")
+
+        emitter.onComplete()
+
+        emitter.setCancellable { println("ObservableEmitter cancel()") }
+    })
+
+    observable.subscribe(object : Consumer<String> {
+
+        override fun accept(s: String?) {
+
+        }
+
+    })
+
+
+    observable.subscribe { s ->
+
+    }
+
+
+}
+
+
 /**
  * Observable created with {@link Observable#create} method
  */
-private fun observableCreate() {
+private fun observableCreate2() {
 
+    // TODO Observable from create with object
     val observable0 = Observable.create(object : ObservableOnSubscribe<String> {
 
         override fun subscribe(emitter: ObservableEmitter<String>) {
@@ -59,6 +92,7 @@ private fun observableCreate() {
         }
     })
 
+    // TODO Observable from create with lambda
     val observable = Observable.create<String> { emitter ->
         emitter.onNext("Hello")
         emitter.onNext("Brave")
@@ -67,6 +101,8 @@ private fun observableCreate() {
         emitter.onError(Exception("Some exception"))
     }
 
+
+    // Observer with Lambda
     val subscribe = observable
 //        .filter {
 //            it.length > 5
@@ -74,11 +110,11 @@ private fun observableCreate() {
         .subscribe(
             { s ->
                 // onNext
-                println("observableCreate() First observer onNext(): $s")
+                println("observableCreate2() First observer onNext(): $s")
             },
             { error ->
                 // onError
-                println("observableCreate() First observer error:" + error.message)
+                println("observableCreate2() First observer error:" + error.message)
             }
         )
     subscribe.dispose()
@@ -87,20 +123,20 @@ private fun observableCreate() {
     val subscriber2 = object : Observer<String> {
 
         override fun onSubscribe(d: Disposable) {
-            println("observableCreate() Second observer onSubscribe() $d")
+            println("observableCreate2() Second observer onSubscribe() $d")
 
         }
 
         override fun onNext(string: String) {
-            println("observableCreate() Second observer onNext() $string")
+            println("observableCreate2() Second observer onNext() $string")
         }
 
         override fun onError(e: Throwable) {
-            println("observableCreate() Second observer onError() ${e.message}")
+            println("observableCreate2() Second observer onError() ${e.message}")
         }
 
         override fun onComplete() {
-            println("observableCreate() Second observer onComplete()")
+            println("observableCreate2() Second observer onComplete()")
         }
     }
 
@@ -108,20 +144,20 @@ private fun observableCreate() {
     // Third Observer
     val subscriber3 = object : Observer<String> {
         override fun onSubscribe(d: Disposable) {
-            println("observableCreate() Third observer onSubscribe() $d")
+            println("observableCreate2() Third observer onSubscribe() $d")
 
         }
 
         override fun onNext(string: String) {
-            println("observableCreate() Third observer onNext() $string")
+            println("observableCreate2() Third observer onNext() $string")
         }
 
         override fun onError(e: Throwable) {
-            println("observableCreate() Third observer onError() ${e.message}")
+            println("observableCreate2() Third observer onError() ${e.message}")
         }
 
         override fun onComplete() {
-            println("observableCreate() Third observer onComplete()")
+            println("observableCreate2() Third observer onComplete()")
         }
     }
 
@@ -194,4 +230,48 @@ private fun testFromIterable() {
             })
 
     disposable.dispose()
+}
+
+/**
+ * Cold Observable with multiple subscriptions
+ */
+private fun testMultipleSubscription() {
+
+    // INFO 🔥
+    val source = Observable.just("Value1", "Value2", "Value3")
+    source.subscribe { s -> println("Observer1: $s") }
+    source.subscribe { s -> println("Observer2: $s") }
+
+    /*
+       Prints:
+       Observer1: Value1
+       Observer1: Value2
+       Observer1: Value3
+       Observer2: Value1
+       Observer2: Value2
+       Observer2: Value3
+   */
+}
+
+private fun setTimer(seconds: Observable<Long>) {
+
+    if (timerRunning) {
+        val longObservable = seconds.unsubscribeOn(Schedulers.computation())
+        disposable?.dispose()
+    } else {
+        disposable = createTimer(seconds)
+    }
+
+    timerRunning = !timerRunning
+}
+
+private fun createTimer(seconds: Observable<Long>): Disposable {
+
+    return seconds
+        .subscribe { l ->
+            println(
+                "Observer 1: " + l
+                        + ", thread: " + Thread.currentThread().name
+            )
+        }
 }
