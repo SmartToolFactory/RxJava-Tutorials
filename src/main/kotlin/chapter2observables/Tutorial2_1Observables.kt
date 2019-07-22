@@ -84,7 +84,13 @@ private fun testObservableWithOperator() {
 
     }
 
-    val lengths = source.map<Int>(Function<String, Int> { s -> s.length })
+    val lengths = source.map(object : Function<String, Int> {
+        override fun apply(t: String): Int {
+            return t.length
+        }
+
+    })
+//    val lengths = source.map<Int>(Function<String, Int> { s -> s.length })
 
     val filtered = lengths.filter({ i -> i >= 5 })
 

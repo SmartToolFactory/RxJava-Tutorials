@@ -3,6 +3,7 @@ package chapter1basics;
 import io.reactivex.*;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
+import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Cancellable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.observers.DisposableSingleObserver;
@@ -36,7 +37,9 @@ public class Tutorial1RxJavaBasics {
 
 //        testMultipleSubscription();
 
-        testMapOperator();
+//        testMapOperator();
+
+        testScanOperator();
     }
 
 
@@ -324,6 +327,20 @@ public class Tutorial1RxJavaBasics {
                         .map(s -> LocalDate.parse(s, dtf))
                         .subscribe(i -> System.out.println("RECEIVED: " + i));
     }
+
+
+    private static void testScanOperator() {
+        Observable.just(
+                "Alpha", "Beta", "Gamma", "Delta", "Epsilon")
+                .scan(0, new BiFunction<Integer, String, Integer>() {
+                    @Override
+                    public Integer apply(Integer integer, String s) throws Exception {
+                        return integer + 1;
+                    }
+                })
+        .subscribe(s-> System.out.println("RECEIVED: " + s));
+    }
+
 }
 
 

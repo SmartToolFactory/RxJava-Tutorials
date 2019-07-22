@@ -4,6 +4,11 @@ import io.reactivex.Observable;
 import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 public class Tutorial2_1Observables {
 
     public static void main(String[] args) {
@@ -103,6 +108,39 @@ public class Tutorial2_1Observables {
                         "Epsilon");
         source.map(String::length).filter(i -> i >= 5)
                 .subscribe(s -> System.out.println("RECEIVED: " + s));
+
+
+        // INFO Alternative 1
+        Observable.just("Alpha", "Beta", "Gamma", "Delta", "Epsilon")
+                .toList(new Callable<Collection<String>>() {
+                    @Override
+                    public Collection<String> call() throws Exception {
+                        return new CopyOnWriteArrayList<>();
+                    }
+                })
+                .subscribe(s -> System.out.println("Received: " + s));
+
+
+        // INFO Alternative 2
+        Observable.just("Alpha", "Beta", "Gamma", "Delta", "Epsilon")
+                .toList(CopyOnWriteArrayList::new)
+                .subscribe(s -> System.out.println("Received: " + s));
+
+
+
+
+        // Alternative 2
+        Observable.just("Alpha", "Beta", "Gamma", "Delta", "Epsilon")
+                .collect(HashSet::new, HashSet::add)
+                .subscribe(s -> System.out.println("Received: " + s));
+
+
+        Observable.just("Alpha", "Beta", "Gamma", "Delta", "Epsilon").toMap(new Function<String, Character>() {
+            @Override
+            public Character apply(String s) throws Exception {
+                return s.charAt(0);
+            }
+        }).subscribe(s -> System.out.println("Received: " + s));
     }
 }
 
