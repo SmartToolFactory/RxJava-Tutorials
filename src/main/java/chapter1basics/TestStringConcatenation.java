@@ -1,5 +1,12 @@
 package chapter1basics;
 
+import io.reactivex.Observable;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 public class TestStringConcatenation {
 
 
@@ -27,6 +34,23 @@ public class TestStringConcatenation {
         System.out.println("Second: " + time);
 
 
+        Observable<Integer> intervalArguments =
+                Observable.just(2, 3, 10, 7);
+
+        intervalArguments.flatMap(i ->
+
+                Observable.interval(i, TimeUnit.SECONDS)
+                        .map(timer -> i + "s interval: " + (timer + 1) * i + " seconds  elapsed")
+        ).subscribe(System.out::println);
+
+
+        try {
+            Thread.sleep(12000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        Arrays.asList();
 
     }
 
@@ -39,7 +63,6 @@ public class TestStringConcatenation {
         return text + text + text + text + text;
 
     }
-
 
 
     public static String concatenateStringBuilder() {
@@ -82,5 +105,29 @@ public class TestStringConcatenation {
         }
 
         return result.toString();
+    }
+
+    static List<Integer> oddNumbers(int l, int r) {
+
+        List<Integer> oddNumbers = new ArrayList<>();
+
+        for (int i = l; i <= r; i++) {
+            if (i % 2 != 0) {
+                oddNumbers.add(i);
+            }
+        }
+
+        return oddNumbers;
+
+    }
+
+    // Complete the findNumber function below.
+    static String findNumber(List<Integer> arr, int k) {
+
+        for (Integer i : arr) {
+            if (i == k) return "YES";
+        }
+
+        return "NO";
     }
 }

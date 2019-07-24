@@ -339,6 +339,8 @@ public class Tutorial1RxJavaBasics {
                     }
                 })
         .subscribe(s-> System.out.println("RECEIVED: " + s));
+
+
     }
 
 }

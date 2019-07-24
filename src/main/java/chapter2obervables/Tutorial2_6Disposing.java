@@ -122,6 +122,8 @@ public class Tutorial2_6Disposing {
         Disposable disposable2 =
                 seconds.subscribe(l -> System.out.println("Observer 2: " +
                         l));
+
+
         //put both disposables into CompositeDisposable
         disposables.addAll(disposable1, disposable2);
 

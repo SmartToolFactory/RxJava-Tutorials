@@ -12,7 +12,7 @@ fun main() {
 
     // INFO toList()
 //    testToListOperator()
-    testListCustomOperator()
+    testToListCustomOperator()
 
     // INFO toSortedList()
 //    testToSortedListOperator()
@@ -61,7 +61,7 @@ private fun testToListOperator() {
 
 }
 
-private fun testListCustomOperator() {
+private fun testToListCustomOperator() {
 
     // WARNING toList() operator with List other than ArrayList
 
