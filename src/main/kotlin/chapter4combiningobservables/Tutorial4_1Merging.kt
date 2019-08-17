@@ -2,6 +2,7 @@ package chapter4combiningobservables
 
 import io.reactivex.Observable
 import io.reactivex.schedulers.TestScheduler
+import model.Person
 import java.lang.Thread.sleep
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -22,9 +23,9 @@ fun main() {
 //    testFlatMapOperator()
 //    testFlatMapOperator2()
 
-//    testFlatMapUser()
+    testFlatMapPerson()
 
-    testFlatMapVsConcatMap()
+//    testFlatMapVsConcatMap()
 
 //    testFlatMapOperatorWithInterval()
 }
@@ -75,6 +76,13 @@ private fun testMergeArrayOperator() {
     val source5 = Observable.just("Iota", "Kappa");
 
     Observable.mergeArray(source1, source2, source3, source4, source5)
+        .subscribe(
+            {
+                println("🚗 onNext() it $it")
+            },
+            {
+
+            })
 }
 
 private fun testMergeOperatorWithList() {
@@ -111,9 +119,11 @@ private fun testMergeOperatorHotObservable() {
 
     //merge and subscribe
     Observable.merge(source1, source2)
-        .subscribe { println(it) }
-    //keep alive for 3 seconds
+        .subscribe {
+            println(it)
+        }
 
+    //keep alive for 3 seconds
     sleep(3000)
 
     /*
@@ -187,14 +197,14 @@ private fun testFlatMapOperator() {
 }
 
 
-private fun testFlatMapUser() {
+private fun testFlatMapPerson() {
 
-    val user = User("James", "Bond")
+    val person = Person("James", "Bond")
 
-    val observable = Observable.just(user)
+    val observable = Observable.just(person)
 
 //    observable.map {
-//        "Name: ${user.firstName}, lastName: ${user.surName} "
+//        "Name: ${person.firstName}, lastName: ${person.surName} "
 //    }.subscribe {
 //        println("Final String: $it")
 //    }
@@ -206,17 +216,17 @@ private fun testFlatMapUser() {
 
     observableQuery.flatMap { q ->
         sleep(5000)
-        Observable.just(User(q, "${q}son"))
+        Observable.just(Person(q, "${q}son"))
     }.subscribe {
-        println("User is: ${user.firstName}, ${user.surName}")
+        println("Person FlatMap -> is: ${person.firstName}, ${person.surName}")
     }
 
 
     observableQuery.map { q ->
         sleep(5000)
-        User(q, "${q}son")
+        Person(q, "${q}son")
     }.subscribe {
-        println("User is: ${user.firstName}, ${user.surName}")
+        println("Person Map -> is: ${person.firstName}, ${person.surName}")
     }
 
 
@@ -228,14 +238,16 @@ private fun testFlatMapOperator2() {
     val race = listOf("Alan", "Bob", "Cobb", "Dan", "Evan", "Finch")
 
     // 🔥 WARNING This one delays each emission
-//    Observable.fromIterable(race)
-//        .flatMap {
-//            val delay = Random().nextInt(5)
-//            Observable.just(it)
-//                .map(String::toUpperCase)
-//                .delay(delay.toLong(), TimeUnit.SECONDS)
-//        }
-//        .subscribe(System.out::println)
+    Observable.fromIterable(race)
+        .flatMap {
+            val delay = Random().nextInt(5)
+            Observable.just(it)
+                .map(String::toUpperCase)
+                .delay(delay.toLong(), TimeUnit.SECONDS)
+        }
+        .subscribe {
+            println("flatMap() $it")
+        }
 
 
     // 🔥 WARNING This one delays the emission then emits all values at once
@@ -251,6 +263,7 @@ private fun testFlatMapOperator2() {
 
     Thread.sleep(5000)
 
+
 }
 
 
@@ -264,6 +277,9 @@ private fun testFlatMapVsConcatMap() {
 
     val scheduler = TestScheduler()
 
+    // 🔥 The * operator is known as the Spread Operator in Kotlin.
+    // It can be applied to an Array before passing it into a function that accepts varargs.
+    // It passes each element one by one
     Observable.fromArray(*items)
         .concatMap { s ->
             val delay = Random().nextInt(10)
@@ -276,8 +292,8 @@ private fun testFlatMapVsConcatMap() {
     scheduler.advanceTimeBy(1, TimeUnit.MINUTES)
 
     /*
-        Prints randomly:
-        onNext() [bx, ex, fx, ax, dx, cx]
+        Prints :
+        onNext() [ax, bx, cx, dx, ex, fx]
 
      */
 
@@ -306,11 +322,13 @@ private fun testFlatMapOperatorWithInterval() {
     val intervalArguments = Observable.just(2, 3, 10, 7)
 
     intervalArguments.flatMap { i ->
+
         Observable.interval(i.toLong(), TimeUnit.SECONDS)
             .map { timer -> "${i}s interval: ${(timer + 1) * (i)} seconds  elapsed" }
             .doOnSubscribe {
                 println("🔥doOnSubscribe(): ${it.javaClass.simpleName}")
             }
+
     }.doOnSubscribe {
         println("🥶doOnSubscribe(): ${it.javaClass.simpleName}")
     }

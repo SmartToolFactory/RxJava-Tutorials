@@ -32,8 +32,7 @@ fun main() {
 private fun testCountOperator() {
 
     Observable.just(
-        "Alpha", "Beta", "Gamma", "Delta",
-        "Epsilon"
+        "Alpha", "Beta", "Gamma", "Delta", "Epsilon"
     )
         .count()    // returns single
         .subscribe(
@@ -61,7 +60,9 @@ private fun testCountOperator() {
  */
 private fun testReduceOperator() {
 
-    Observable.just(5, 3, 7, 10, 2, 14)
+    val observable = Observable.just(5, 3, 7, 10, 2, 14)
+
+    observable
         .reduce { total, next -> total + next }
         .subscribe(
             { s -> println("onSuccess() Received: $s") },
@@ -105,7 +106,7 @@ private fun testAnyOperator() {
     )
         .map { LocalDate.parse(it) }
         .any { dt -> dt.monthValue >= 6 } // Single
-        .subscribe { s -> println("onSuccess() Received: " + s!!) }
+        .subscribe { s -> println("onSuccess() Received: $s") }
 
     /*
         Prints:
@@ -124,6 +125,10 @@ private fun testContains() {
 
     Observable.range(1, 10000)
         .contains(9563) // Single
-        .subscribe { s -> println("onSucces() Received: " + s!!) }
+        .subscribe { s -> println("onSuccess() Received: $s") }
+    /*
+        Prints:
+        onSuccess() Received: true
+     */
 
 }

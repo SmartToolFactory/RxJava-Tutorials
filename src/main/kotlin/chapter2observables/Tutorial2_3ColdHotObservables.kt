@@ -18,7 +18,8 @@ fun main() {
     // Hot Observables
 //        testConnectObservable();
 //        testConnectObservableCreate()
-    testConnectObservableInterval()
+//    testConnectObservableInterval()
+    testConnectObservableInterval2()
 }
 
 
@@ -210,7 +211,7 @@ private fun testColdObservableCreate() {
 
 /*
      *** HOT OBSERVABLES ***
-     */
+*/
 
 private fun testConnectObservable() {
 
@@ -282,6 +283,38 @@ private fun testConnectObservableInterval() {
 
     Thread.sleep(3000)
     connectibleObservable.subscribe { item -> println("Observer 2 Received: $item sec") }
+    Thread.sleep(5000)
+
+    /*
+        Prints:
+        Observer 1: 0
+        Observer 1: 1
+        Observer 1: 2
+        Observer 1: 3
+        Observer 2: 3 🔥🔥 Observer 2 received the same emission as observer 1 upon subscription
+        Observer 1: 4
+        Observer 2: 4
+        Observer 1: 5
+        Observer 2: 5
+
+    */
+}
+
+
+private fun testConnectObservableInterval2() {
+
+    val myObservable = Observable.interval(1, TimeUnit.SECONDS)
+
+    val connectibleObservable = myObservable.publish()
+
+    connectibleObservable.connect()
+
+    connectibleObservable.subscribe { item -> println("Observer 1 Received: $item") }
+    connectibleObservable.subscribe { item -> println("Observer 2 Received: $item") }
+
+
+    Thread.sleep(3000)
+    connectibleObservable.subscribe { item -> println("Observer 3 Received: $item sec") }
     Thread.sleep(5000)
 
     /*

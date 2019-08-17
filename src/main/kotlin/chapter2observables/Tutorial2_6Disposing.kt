@@ -78,11 +78,11 @@ private fun testResourceObserver() {
     val myObserver = object : ResourceObserver<Long>() {
 
         override fun onNext(value: Long) {
-            println(" onNext()" + value)
+            println(" onNext() $value")
         }
 
         override fun onError(e: Throwable) {
-            println("onError e: " + e.message)
+            println("onError e: $e.message")
         }
 
         override fun onComplete() {

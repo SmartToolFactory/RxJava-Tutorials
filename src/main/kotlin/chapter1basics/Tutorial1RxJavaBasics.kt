@@ -52,6 +52,7 @@ private fun observableJust() {
 
 
 private fun testCreate() {
+
     val observable = Observable.create(ObservableOnSubscribe<String> { emitter ->
         emitter.onNext("One")
         emitter.onNext("Two")

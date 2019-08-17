@@ -17,6 +17,7 @@ fun main() {
  *
  * The **Observable.amb()** factory (amb stands for ambiguous) will accept an **Iterable<Observable<T>>**
  * and emit the emissions of the first Observable that emits, while the others are disposed of.
+ *
  * The first Observable with an emission is the one whose emissions go through.
  * This is helpful when you have **multiple sources for the same data or events and you want the fastest one** to win.
  */

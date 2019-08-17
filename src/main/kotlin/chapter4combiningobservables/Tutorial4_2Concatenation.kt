@@ -5,10 +5,10 @@ import io.reactivex.Observable
 fun main() {
 
     // INFO concat
-    testConcatOperator()
+//    testConcatOperator()
 
     // INFO concatMap()
-    testConcatMap()
+    testConcatMapOperator()
 
 }
 
@@ -34,6 +34,7 @@ private fun testConcatOperator() {
         RECEIVED: Gamma
         RECEIVED: Delta
         RECEIVED: Epsilon
+
         RECEIVED: Zeta
         RECEIVED: Eta
         RECEIVED: Theta
@@ -61,7 +62,7 @@ private fun testConcatOperator() {
  * **concatMap()** will merge each mapped Observable sequentially and fire it one at a time.
  * It will **only move to the next** Observable when the current one calls **onComplete()**. If source emissions produce Observables faster than concatMap() can emit from them, those Observables will be queued.
  */
-private fun testConcatMap() {
+private fun testConcatMapOperator() {
 
     val source = Observable.just("Alpha", "Beta", "Gamma", "Delta", "Epsilon")
 
@@ -76,3 +77,4 @@ private fun testConcatMap() {
         )
 
 }
+

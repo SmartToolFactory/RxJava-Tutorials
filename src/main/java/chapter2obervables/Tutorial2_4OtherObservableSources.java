@@ -43,6 +43,7 @@ public class Tutorial2_4OtherObservableSources {
 
         Observable.range(5, 3)
                 .subscribe(s -> System.out.println("RECEIVED: " + s));
+
     }
 
     private static void testObservableInterval() {

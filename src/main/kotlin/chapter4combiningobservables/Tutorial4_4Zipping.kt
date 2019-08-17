@@ -2,6 +2,7 @@ package chapter4combiningobservables
 
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
+import io.reactivex.functions.Function3
 import java.lang.Thread.sleep
 import java.time.LocalTime
 import java.util.concurrent.TimeUnit
@@ -9,9 +10,13 @@ import java.util.concurrent.TimeUnit
 
 fun main() {
 
-    testZipOperator()
+//    testZipOperator()
+//
+//    testZipOperatorInterval()
 
-    testZipOperatorInterval()
+//    testZipOperatorInterval2()
+
+    testZipOperatorInterval3()
 }
 
 
@@ -140,7 +145,7 @@ private fun testZipOperatorInterval() {
             println("🚙zip() onNext() Received $it at ${LocalTime.now()}")
         }
 
-    sleep(7000)
+    sleep(10_000)
 
 
     /*
@@ -165,4 +170,149 @@ private fun testZipOperatorInterval() {
         🔜🤑source2 doOnDispose()
         🚙zip() doOnComplete()
      */
+}
+
+
+private fun testZipOperatorInterval2() {
+
+
+    val source1 = Observable.interval(300, TimeUnit.MILLISECONDS)
+        .doOnNext {
+            println("🚗source1 doOnNext() $it")
+        }
+        .doOnComplete {
+            println("🚗source1 doOnComplete()")
+        }
+        .doOnDispose {
+            println("🔜🚗source1 doOnDispose()")
+        }
+
+    val source2 = Observable.interval(1, TimeUnit.SECONDS)
+        .doOnNext {
+            println("🤑source2 doOnNext() $it")
+        }
+        .doOnComplete {
+            println("🤑source2 doOnComplete()")
+        }
+        .doOnDispose {
+            println("🔜🤑source2 doOnDispose()")
+        }
+
+    Observable.zip(source1, source2, BiFunction { l1: Long, l2: Long ->
+        "SOURCE 1: $l1 SOURCE 2: $l2"
+    })
+        .doOnComplete {
+            println("🚙zip() doOnComplete()")
+        }
+        .subscribe {
+            println("🚙zip() onNext() $it")
+        }
+    sleep(3000)
+
+    /*
+        Prints:
+        🚗source1 doOnNext() 0
+        🚗source1 doOnNext() 1
+        🚗source1 doOnNext() 2
+        🤑source2 doOnNext() 0
+        🚙zip() onNext() SOURCE 1: 0 SOURCE 2: 0
+        🚗source1 doOnNext() 3
+        🚗source1 doOnNext() 4
+        🚗source1 doOnNext() 5
+        🤑source2 doOnNext() 1
+        🚙zip() onNext() SOURCE 1: 1 SOURCE 2: 1
+        🚗source1 doOnNext() 6
+        🚗source1 doOnNext() 7
+        🚗source1 doOnNext() 8
+        🚗source1 doOnNext() 9
+        🤑source2 doOnNext() 2
+        🚙zip() onNext() SOURCE 1: 2 SOURCE 2: 2
+     */
+
+
+}
+
+
+private fun testZipOperatorInterval3() {
+
+
+    val source1 = Observable.interval(300, TimeUnit.MILLISECONDS)
+        .take(4)
+        .doOnNext {
+            println("🚗source1 doOnNext() $it")
+        }
+        .doOnComplete {
+            println("🚗source1 doOnComplete()")
+        }
+        .doOnDispose {
+            println("🔜🚗source1 doOnDispose()")
+        }
+
+    val source2 = Observable.interval(1, TimeUnit.SECONDS)
+        .take(4)
+        .doOnNext {
+            println("🤑source2 doOnNext() $it")
+        }
+        .doOnComplete {
+            println("🤑source2 doOnComplete()")
+        }
+        .doOnDispose {
+            println("🔜🤑source2 doOnDispose()")
+        }
+
+
+    val source3 = Observable.interval(200, TimeUnit.MILLISECONDS)
+        .take(4)
+        .doOnNext {
+            println("🗿source3 doOnNext() $it")
+        }
+        .doOnComplete {
+            println("🗿source3 doOnComplete()")
+        }
+        .doOnDispose {
+            println("🔜🗿source3 doOnDispose()")
+        }
+
+
+    Observable.zip(source1, source2, source3, Function3() { l1: Long, l2: Long, l3: Long ->
+        "SOURCE 1: $l1 SOURCE 2: $l2 SOURCE 3: $l3"
+    })
+        .doOnComplete {
+            println("🚙zip() doOnComplete()")
+        }
+        .subscribe {
+            println("🚙zip() onNext() $it")
+        }
+
+
+    sleep(50_000)
+
+    /*
+        🗿source3 doOnNext() 0
+        🚗source1 doOnNext() 0
+        🗿source3 doOnNext() 1
+        🗿source3 doOnNext() 2
+        🚗source1 doOnNext() 1
+        🗿source3 doOnNext() 3
+        🗿source3 doOnComplete()
+        🚗source1 doOnNext() 2
+        🤑source2 doOnNext() 0
+        🚙zip() onNext() SOURCE 1: 0 SOURCE 2: 0 SOURCE 3: 0
+        🚗source1 doOnNext() 3
+        🚗source1 doOnComplete()
+        🤑source2 doOnNext() 1
+        🚙zip() onNext() SOURCE 1: 1 SOURCE 2: 1 SOURCE 3: 1
+        🤑source2 doOnNext() 2
+        🚙zip() onNext() SOURCE 1: 2 SOURCE 2: 2 SOURCE 3: 2
+        🤑source2 doOnNext() 3
+        🚙zip() onNext() SOURCE 1: 3 SOURCE 2: 3 SOURCE 3: 3
+        🔜🚗source1 doOnDispose()
+        🔜🤑source2 doOnDispose()
+        🔜🗿source3 doOnDispose()
+        🚙zip() doOnComplete()
+        🤑source2 doOnComplete()
+     */
+
+
+
 }
