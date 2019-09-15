@@ -6,6 +6,8 @@ import io.reactivex.disposables.Disposable
 
 fun main() {
 
+
+    testObserverWithMultipleObservables()
 }
 
 private fun testObserver() {
@@ -14,14 +16,14 @@ private fun testObserver() {
         "Alpha", "Beta", "Gamma", "Delta", "Epsilon"
     )
 
-    val myObserver = object : Observer<Int> {
+    val myObserver = object : Observer<String> {
 
 
         override fun onSubscribe(d: Disposable) {
             //do nothing with Disposable, disregard for now
         }
 
-        override fun onNext(value: Int) {
+        override fun onNext(value: String) {
             println("RECEIVED: $value")
         }
 
@@ -33,6 +35,10 @@ private fun testObserver() {
             println("Done!")
         }
     }
+
+    source.subscribe(myObserver)
+
+
 }
 
 
@@ -60,4 +66,52 @@ private fun testObserverLambda() {
             }
         )
 
+}
+
+private fun testObserverWithMultipleObservables() {
+    val source1 = Observable.just(
+        "Alpha", "Beta", "Gamma", "Delta", "Epsilon"
+    )
+
+    val source2 = Observable.just("One", "Two", "Three", "Four")
+
+    val myObserver = object : Observer<String> {
+
+
+        override fun onSubscribe(d: Disposable) {
+            //do nothing with Disposable, disregard for now
+        }
+
+        override fun onNext(value: String) {
+            println("RECEIVED: $value")
+        }
+
+        override fun onError(e: Throwable) {
+            e.printStackTrace()
+        }
+
+        override fun onComplete() {
+            println("Done!")
+        }
+    }
+
+    source1.subscribe(myObserver)
+    source2.subscribe(myObserver)
+
+    /*
+        Prints:
+        RECEIVED: Alpha
+        RECEIVED: Beta
+        RECEIVED: Gamma
+        RECEIVED: Delta
+        RECEIVED: Epsilon
+        Done!
+        RECEIVED: One
+        RECEIVED: Two
+        RECEIVED: Three
+        RECEIVED: Four
+        Done!
+
+
+     */
 }

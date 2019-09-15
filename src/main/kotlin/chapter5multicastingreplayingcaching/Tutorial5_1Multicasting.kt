@@ -161,7 +161,7 @@ private fun testWithoutMulticasting2() {
     val observable = Observable.just(0)
         // 🔥 WARNING This operation is done for both observers
         .map {
-            println("Memory heavy work is being done val: $it")
+            println("🔧 Memory heavy work is being done val: $it")
             it + 1
         }
 
@@ -171,21 +171,25 @@ private fun testWithoutMulticasting2() {
 
     /*
         Prints
-        Memory heavy work is being done val: 0
+        🔧 Memory heavy work is being done val: 0
         Observer1 onSubscribe() result: 1
-        Memory heavy work is being done val: 0
+        🔧 Memory heavy work is being done val: 0
         Observer2 onSubscribe() result: 1
      */
 }
 
+/**
+ * This functions invoke map only once. After that each subscriber's onNext method is called.
+ */
 private fun testWithMulticasting2() {
 
     val observable = Observable.just(0)
         // 🔥 WARNING This operation is done once
         .map {
-            println("Memory heavy work is being done val: $it")
+            println("🔧 Memory heavy work is being done val: $it")
             it + 1
-        }.publish()
+        }
+        .publish()
 
 
     observable.subscribe { println("Observer1 onSubscribe() result: $it") }
@@ -195,7 +199,7 @@ private fun testWithMulticasting2() {
 
     /*
         Prints :
-        Memory heavy work is being done val: 0
+        🔧 Memory heavy work is being done val: 0
         Observer1 onSubscribe() result: 1
         Observer2 onSubscribe() result: 1
      */

@@ -14,7 +14,7 @@ fun main() {
 //    testMergeOperator()
 //    testMergeArrayOperator()
 //    testMergeOperatorWithList()
-//    testMergeOperatorHotObservable()
+//    testMergeOperatorInterval()
 
     // INFO mergeWith
 //    testMergeWithOperator()
@@ -105,7 +105,7 @@ private fun testMergeOperatorWithList() {
  * you can merge multiple infinite sources into a single stream.
  * Here, we merge two **Observable.interval()** sources that emit at one second and 300 millisecond intervals, respectively.
  */
-private fun testMergeOperatorHotObservable() {
+private fun testMergeOperatorInterval() {
 
     //emit every second
     val source1 = Observable.interval(1, TimeUnit.SECONDS)
@@ -255,7 +255,8 @@ private fun testFlatMapOperator2() {
     Observable.fromIterable(race)
         .map {
             it.toUpperCase()
-        }.delay(Random().nextInt(5).toLong(), TimeUnit.SECONDS)
+        }
+        .delay(Random().nextInt(5).toLong(), TimeUnit.SECONDS)
         .subscribe {
             println("with map() $it")
         }

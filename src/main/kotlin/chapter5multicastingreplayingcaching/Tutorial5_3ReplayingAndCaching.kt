@@ -8,8 +8,8 @@ fun main() {
 
     // INFO replay
 //    testReplayOperatorWithNoArguments()
-//    testReplayWithArguments()
-    testReplayWithArguments2()
+    testReplayWithArguments()
+//    testReplayWithArguments2()
 
     // cache
 
@@ -67,7 +67,8 @@ private fun testReplayWithArguments() {
         .autoConnect();
 
     //Observer 1
-    seconds.subscribe { i -> println("🚗 Observer 1: $i") }
+    val disposable = seconds
+        .subscribe { i -> println("🚗 Observer 1: $i") }
 
     sleep(4000)
 
@@ -76,7 +77,8 @@ private fun testReplayWithArguments() {
 
     sleep(3000)
 
-    // Observer 2 only gets the last 2 results which are 2, and 3 since replay(2) is used
+    // WARNING Observer 2 only gets the last 2 results which are 2 and 3,
+    //  since replay(2) is used, and gets them instantly
     /*
         Prints:
         🚗 Observer 1: 0
@@ -124,5 +126,5 @@ private fun testReplayWithArguments2() {
         🤑 Observer 2: Delta
         🤑 Observer 2: Epsilon
      */
-    
+
 }

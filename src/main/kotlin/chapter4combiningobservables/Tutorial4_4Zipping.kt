@@ -3,8 +3,10 @@ package chapter4combiningobservables
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 import io.reactivex.functions.Function3
+import model.Person
 import java.lang.Thread.sleep
 import java.time.LocalTime
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 
@@ -16,7 +18,9 @@ fun main() {
 
 //    testZipOperatorInterval2()
 
-    testZipOperatorInterval3()
+//    testZipOperatorInterval3()
+
+    testZipOperatorWithFlatMap()
 }
 
 
@@ -314,5 +318,50 @@ private fun testZipOperatorInterval3() {
      */
 
 
+}
 
+
+private fun testZipOperatorWithFlatMap() {
+
+    val source1 = Observable.just("Alpha", "Beta", "Gamma", "Delta", "Epsilon")
+        .doOnNext {
+            println("🚗source1 doOnNext() $it")
+        }
+        .doOnComplete {
+            println("🚗source1 doOnComplete()")
+        }
+        .doOnDispose {
+            println("🔜🚗source1 doOnDispose()")
+        }
+    val source2 = Observable.range(1, 6)
+        .doOnNext {
+            println("🤑source2 doOnNext() $it")
+        }
+        .doOnComplete {
+            println("🤑source2 doOnComplete()")
+        }
+        .doOnDispose {
+            println("🔜🤑source2 doOnDispose()")
+        }
+
+    Observable.zip(source1, source2, BiFunction { str: String, integer: Int ->
+        "$str-$integer"
+    }).flatMap {
+        getUser(it, it)
+    }
+        .doOnComplete {
+            println("🚙zip() doOnComplete()")
+        }
+        .subscribe {
+            println("🚙zip() onNext() $it")
+        }
+
+
+    sleep(15000)
+}
+
+private fun getUser(name: String, surName: String): Observable<Person> {
+    val random = Random().nextInt(1000) + 1000
+    sleep(2000)
+    return Observable.just(Person(name, surName))
 }

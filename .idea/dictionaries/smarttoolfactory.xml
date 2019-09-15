@@ -2,6 +2,8 @@
   <dictionary name="smarttoolfactory">
     <words>
       <w>connectable</w>
+      <w>multicasts</w>
+      <w>unicast</w>
     </words>
   </dictionary>
 </component>

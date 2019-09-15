@@ -35,10 +35,11 @@ fun main() {
  */
 private fun testAutoConnectOperator() {
     val threeRandoms =
-        Observable.range(1, 3).map { i ->
-            println("map() $i")
-            randomInt()
-        }
+        Observable.range(1, 3)
+            .map { i ->
+                println("map() $i")
+                randomInt()
+            }
             .publish()
             .autoConnect(2)
 
@@ -204,7 +205,7 @@ private fun testRefCountOperator() {
     // here should be no more Observers at this point
 
     //Observer
-    seconds.subscribe{l -> println("Observer 3: $l") }
+    seconds.subscribe { l -> println("Observer 3: $l") }
 
 
     sleep(3000)
