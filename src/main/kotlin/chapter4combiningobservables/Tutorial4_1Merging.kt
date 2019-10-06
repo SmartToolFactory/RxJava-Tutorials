@@ -12,7 +12,7 @@ fun main() {
 
     // INFO merge
 //    testMergeOperator()
-//    testMergeArrayOperator()
+    testMergeArrayOperator()
 //    testMergeOperatorWithList()
 //    testMergeOperatorInterval()
 
@@ -23,7 +23,7 @@ fun main() {
 //    testFlatMapOperator()
 //    testFlatMapOperator2()
 
-    testFlatMapPerson()
+//    testFlatMapPerson()
 
 //    testFlatMapVsConcatMap()
 
@@ -61,7 +61,7 @@ private fun testMergeOperator() {
         RECEIVED: Theta
      */
 
-    // WARNING merge operator waits until first stream end and merges next one after that
+    // 🔥🔥🔥 WARNING merge operator waits until first stream end and merges next one after that
 
 
 }
@@ -83,6 +83,22 @@ private fun testMergeArrayOperator() {
             {
 
             })
+
+    /*
+        Prints:
+        🚗 onNext() it Alpha
+        🚗 onNext() it Beta
+        🚗 onNext() it Gamma
+        🚗 onNext() it Delta
+        🚗 onNext() it Epsilon
+        🚗 onNext() it Zeta
+        🚗 onNext() it Eta
+        🚗 onNext() it Theta
+        🚗 onNext() it Iota
+        🚗 onNext() it Kappa
+     */
+
+    // Waits each stream to end before moving to next one
 }
 
 private fun testMergeOperatorWithList() {
@@ -235,10 +251,10 @@ private fun testFlatMapPerson() {
 
 private fun testFlatMapOperator2() {
 
-    val race = listOf("Alan", "Bob", "Cobb", "Dan", "Evan", "Finch")
+    val listOfPeople = listOf("Alan", "Bob", "Cobb", "Dan", "Evan", "Finch")
 
     // 🔥 WARNING This one delays each emission
-    Observable.fromIterable(race)
+    Observable.fromIterable(listOfPeople)
         .flatMap {
             val delay = Random().nextInt(5)
             Observable.just(it)
@@ -252,7 +268,7 @@ private fun testFlatMapOperator2() {
 
     // 🔥 WARNING This one delays the emission then emits all values at once
 
-    Observable.fromIterable(race)
+    Observable.fromIterable(listOfPeople)
         .map {
             it.toUpperCase()
         }

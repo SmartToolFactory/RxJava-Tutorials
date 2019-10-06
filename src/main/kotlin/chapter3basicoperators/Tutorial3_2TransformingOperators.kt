@@ -215,7 +215,7 @@ private fun testDelayOperator() {
         .delay(3, TimeUnit.SECONDS)
         .subscribe { s -> println("Received: $s") }
 
-    // Delays 3 seconds and emits all values just after delay
+    // 🔥🔥🔥 Delays 3 seconds and emits all values just after delay
 
     /*
     INFO
