@@ -1,13 +1,5 @@
 package chapter1basics;
 
-import io.reactivex.*;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Action;
-import io.reactivex.functions.BiFunction;
-import io.reactivex.functions.Cancellable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.observers.DisposableSingleObserver;
-import io.reactivex.schedulers.Schedulers;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalDate;
@@ -16,6 +8,18 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+
+import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Single;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Action;
+import io.reactivex.functions.BiFunction;
+import io.reactivex.functions.Cancellable;
+import io.reactivex.functions.Consumer;
+import io.reactivex.observers.DisposableSingleObserver;
+import io.reactivex.schedulers.Schedulers;
 
 public class Tutorial1RxJavaBasics {
 
@@ -28,7 +32,7 @@ public class Tutorial1RxJavaBasics {
 //        fakeUserInputWithInterval().blockingSubscribe(line -> System.out.println("Number: " + line));
 //        testSingle();
 
-//        testObservable();
+        testObservable();
 
 
 //        testCreate();
@@ -39,7 +43,7 @@ public class Tutorial1RxJavaBasics {
 
 //        testMapOperator();
 
-        testScanOperator();
+//        testScanOperator();
     }
 
 
@@ -113,95 +117,95 @@ public class Tutorial1RxJavaBasics {
                         });
 
 
-        // TODO SubscribeWith
-        Observer<String> stringObserver = observableString.subscribeWith(new Observer<String>() {
-
-            @Override
-            public void onSubscribe(Disposable d) {
-                System.out.println("onSubscribe d: " + d + ", thread: " + Thread.currentThread().getName());
-
-            }
-
-            @Override
-            public void onNext(String s) {
-                System.out.println("onNext(): " + s + ", thread: " + Thread.currentThread().getName());
-
-            }
-
-            @Override
-            public void onError(Throwable e) {
-
-            }
-
-            @Override
-            public void onComplete() {
-                System.out.println("onComplete(): " + ", thread: " + Thread.currentThread().getName());
-
-            }
-        });
-
-
-//        Observable<String> observable = Observable.create(new ObservableOnSubscribe<String>() {
+//        // TODO SubscribeWith
+//        Observer<String> stringObserver = observableString.subscribeWith(new Observer<String>() {
+//
 //            @Override
-//            public void subscribe(ObservableEmitter<String> emitter) throws Exception {
+//            public void onSubscribe(Disposable d) {
+//                System.out.println("onSubscribe d: " + d + ", thread: " + Thread.currentThread().getName());
+//
+//            }
+//
+//            @Override
+//            public void onNext(String s) {
+//                System.out.println("onNext(): " + s + ", thread: " + Thread.currentThread().getName());
+//
+//            }
+//
+//            @Override
+//            public void onError(Throwable e) {
+//
+//            }
+//
+//            @Override
+//            public void onComplete() {
+//                System.out.println("onComplete(): " + ", thread: " + Thread.currentThread().getName());
 //
 //            }
 //        });
-
-
-        // TODO subscribe
-        Observable<String> observable = Observable.create(emitter -> {
-            emitter.onNext("Hello");
-            emitter.onNext("Brave");
-            emitter.onNext("A new World");
-
-            emitter.onError(new Exception("Some exception"));
-        });
-
-        Disposable subscribe = observable
-                .filter(it -> it.length() > 5)
-
-                .subscribe(
-                        s -> {
-                            System.out.println("Observable res: onNext(): " + s);
-                        }, error -> {
-                            System.out.println("Observable res onError() error:" + error.getMessage());
-                        }
-                );
-
-
-        subscribe.dispose();
-
-
-        Observable<Integer> observableInteger = Observable.fromArray(1, 2, 3, 4, 5);
-
-        // TODO subscribe
-        observableInteger
-
-                .map(integer -> integer * 2)
-                .filter(integer -> integer > 4)
-
-                .subscribe(new Observer<Integer>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                        System.out.println("observableInteger onSubscribe() d: " + d + ", thread: " + Thread.currentThread().getName());
-                    }
-
-                    @Override
-                    public void onNext(Integer integer) {
-                        System.out.println("observableInteger onNext(): " + integer + ", thread: " + Thread.currentThread().getName());
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        System.out.println("observableInteger onError() e:" + e.getMessage());
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        System.out.println("observableInteger onComplete(): " + ", thread: " + Thread.currentThread().getName());
-                    }
-                });
+//
+//
+////        Observable<String> observable = Observable.create(new ObservableOnSubscribe<String>() {
+////            @Override
+////            public void subscribe(ObservableEmitter<String> emitter) throws Exception {
+////
+////            }
+////        });
+//
+//
+//        // TODO subscribe
+//        Observable<String> observable = Observable.create(emitter -> {
+//            emitter.onNext("Hello");
+//            emitter.onNext("Brave");
+//            emitter.onNext("A new World");
+//
+//            emitter.onError(new Exception("Some exception"));
+//        });
+//
+//        Disposable subscribe = observable
+//                .filter(it -> it.length() > 5)
+//
+//                .subscribe(
+//                        s -> {
+//                            System.out.println("Observable res: onNext(): " + s);
+//                        }, error -> {
+//                            System.out.println("Observable res onError() error:" + error.getMessage());
+//                        }
+//                );
+//
+//
+//        subscribe.dispose();
+//
+//
+//        Observable<Integer> observableInteger = Observable.fromArray(1, 2, 3, 4, 5);
+//
+//        // TODO subscribe
+//        observableInteger
+//
+//                .map(integer -> integer * 2)
+//                .filter(integer -> integer > 4)
+//
+//                .subscribe(new Observer<Integer>() {
+//                    @Override
+//                    public void onSubscribe(Disposable d) {
+//                        System.out.println("observableInteger onSubscribe() d: " + d + ", thread: " + Thread.currentThread().getName());
+//                    }
+//
+//                    @Override
+//                    public void onNext(Integer integer) {
+//                        System.out.println("observableInteger onNext(): " + integer + ", thread: " + Thread.currentThread().getName());
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//                        System.out.println("observableInteger onError() e:" + e.getMessage());
+//                    }
+//
+//                    @Override
+//                    public void onComplete() {
+//                        System.out.println("observableInteger onComplete(): " + ", thread: " + Thread.currentThread().getName());
+//                    }
+//                });
 
 
     }

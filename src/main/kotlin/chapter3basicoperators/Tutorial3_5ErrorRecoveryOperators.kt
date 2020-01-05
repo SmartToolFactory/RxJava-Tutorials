@@ -1,21 +1,31 @@
 package chapter3basicoperators
 
 import io.reactivex.Observable
+import io.reactivex.ObservableSource
+
 
 fun main() {
 
     // INFO onError
-//    testOnErrorOperator()
+//    testOnErrorReturnOperator()
 
-    // INFO onErrorReturnItem
+//     INFO onErrorReturnItem
 //    testOnErrorReturnItemOperator()
-//
-//    testOnErrorReturnOperatorAndContinue()
 
-    // INFO onErrorResumeNext
+//     INFO error is caught with try-catch block
+//    testErrorWithTryCatch()
+
+//     🔥 INFO onErrorResumeNext
 //    testOnErrorResumeNextOperator()
-//    testOnErrorResumeNextOperatorAndContinue()
-    // INFO retry
+//    testOnErrorResumeNextOperatorWithRepeatedEmission()
+//    testOnErrorResumeNextWithNewSequence()
+//    Important 🔥🔥
+//    testOnErrorResumeNextWithCondition()
+//    Important 🔥🔥
+//    testOnErrorResumeNextWithConditionAndObservableSource()
+
+
+//     INFO retry
     testRetryOperator()
 }
 
@@ -27,9 +37,12 @@ fun main() {
  * you can use onErrorReturnItem(). If we want to emit -1 when an exception occurs, we can do it like this
  *
  */
-private fun testOnErrorOperator() {
+private fun testOnErrorReturnOperator() {
 
-    println("testOnErrorOperator()")
+    println("🔧 testOnErrorOperator()")
+
+    // 🔥🔥 onErrorReturn should be after map method(down stream) for error to be caught
+    // 🔥🔥🔥 doOnError() should be called after the method that throws error and before onErrorReturn
 
 //    Observable.just(5, 2, 4, 0, 3, 2, 8)
 //        .map { i -> 10 / i }
@@ -57,35 +70,14 @@ private fun testOnErrorOperator() {
 
     Observable.just(5, 2, 4, 0, 3, 2, 8)
         .map { i -> 10 / i }
+        .doOnError {
+            println("doOnError() throwable: ${it.message}")
+        }
         .onErrorReturn { e -> -1 }
+
         .subscribe(
             { i -> println("RECEIVED: $i") },
             { e -> println("RECEIVED ERROR: $e") }
-        )
-}
-
-/**
- *
- * Note that even though we emitted -1 to handle the error, the sequence still terminated after that.
- * We did not get the 3, 2, or 8 that was supposed to follow. If you want to resume emissions,
- * you will just want to handle the error within the map() operator where the error can occur.
- * You would do this in lieu of onErrorReturn() or **onErrorReturnItem()**:
- *
- */
-
-private fun testOnErrorReturnOperatorAndContinue() {
-    Observable.just(5, 2, 4, 0, 3, 2, 8)
-        .map { i ->
-            try {
-                10 / i
-            } catch (e: ArithmeticException) {
-                -1
-            }
-        }
-
-        .subscribe(
-//            { i -> println("RECEIVED: $i") },
-//            { e -> println("RECEIVED ERROR: $e") }
         )
 
     /*
@@ -93,11 +85,10 @@ private fun testOnErrorReturnOperatorAndContinue() {
         RECEIVED: 2
         RECEIVED: 5
         RECEIVED: 2
+        doOnError() throwable: / by zero
         RECEIVED: -1
-        RECEIVED: 3
-        RECEIVED: 5
-        RECEIVED: 1
      */
+
 }
 
 /**
@@ -107,7 +98,7 @@ private fun testOnErrorReturnOperatorAndContinue() {
  */
 private fun testOnErrorReturnItemOperator() {
 
-    println("testOnErrorReturnItemOperator()")
+    println("🔧 testOnErrorReturnItemOperator()")
 
 
     Observable.just(5, 2, 4, 0, 3, 2, 8)
@@ -128,6 +119,46 @@ private fun testOnErrorReturnItemOperator() {
 }
 
 /**
+ *
+ * Note that even though we emitted -1 to handle the error, the sequence still terminated after that.
+ * We did not get the 3, 2, or 8 that was supposed to follow. If you want to resume emissions,
+ * you will just want to handle the error within the map() operator where the error can occur.
+ * You would do this in lieu of onErrorReturn() or **onErrorReturnItem()**:
+ *
+ */
+
+private fun testErrorWithTryCatch() {
+
+    println("🔧 testErrorWithTryAndCatch()")
+
+    Observable.just(5, 2, 4, 0, 3, 2, 8)
+        .map { i ->
+            try {
+                10 / i
+            } catch (e: ArithmeticException) {
+                -1
+            }
+        }
+
+        .subscribe(
+            { i -> println("RECEIVED: $i") },
+            { e -> println("RECEIVED ERROR: $e") }
+        )
+
+    /*
+        Prints:
+        RECEIVED: 2
+        RECEIVED: 5
+        RECEIVED: 2
+        RECEIVED: -1
+        RECEIVED: 3
+        RECEIVED: 5
+        RECEIVED: 1
+     */
+}
+
+
+/**
  * 🔥 INFO onErrorResumeNext()
  *
  * Similar to **onErrorReturn()** and **onErrorReturnItem()**, **onErrorResumeNext()** is very similar.
@@ -139,7 +170,7 @@ private fun testOnErrorReturnItemOperator() {
  */
 private fun testOnErrorResumeNextOperator() {
 
-    println("testOnErrorResumeNextOperator()")
+    println("🔧 testOnErrorResumeNextOperator()")
     println("With Observable.just()")
 
     Observable.just(5, 2, 4, 0, 3, 2, 8)
@@ -161,12 +192,13 @@ private fun testOnErrorResumeNextOperator() {
      */
 
     // INFO Observable.empty does not emit any value
-    println("With Observable.empty()")
+    println("🔧 With Observable.empty()")
 
     Observable.just(5, 2, 4, 0, 3, 2, 8)
         .map { i -> 10 / i }
         .onErrorResumeNext(Observable.empty())
-        .subscribe({ i -> println("RECEIVED: $i") },
+        .subscribe(
+            { i -> println("RECEIVED: $i") },
             { e -> println("RECEIVED ERROR: $e") }
         )
 
@@ -176,13 +208,16 @@ private fun testOnErrorResumeNextOperator() {
         RECEIVED: 5
         RECEIVED: 2
      */
+
 }
 
 /**
  * Similar to **onErrorReturn()**, you can provide a F**unction<Throwable,Observable<T>>** lambda
  * to produce an Observable dynamically from the emitted Throwable, as shown in the code snippet:
  */
-private fun testOnErrorResumeNextOperatorAndContinue() {
+private fun testOnErrorResumeNextOperatorWithRepeatedEmission() {
+
+    println("🔧 testOnErrorResumeNextOperatorAndContinue()")
 
     Observable.just(5, 2, 4, 0, 3, 2, 8)
         .map { i -> 10 / i }
@@ -203,6 +238,93 @@ private fun testOnErrorResumeNextOperatorAndContinue() {
      */
 }
 
+/**
+ * Returns a new sequence when an exception occurs.
+ * doOnError method can be used to do something in the mean time
+ */
+private fun testOnErrorResumeNextWithNewSequence() {
+
+    // INFO With a new sequence
+    println("🔧 testOnErrorResumeNextWithNewSequence()")
+
+    Observable.just(5, 2, 4, 0, 3, 2, 8)
+        .map { i -> 10 / i }
+        .doOnError {
+            println("doOnError() throwable: ${it.message}")
+        }
+        .onErrorResumeNext(Observable.just(100, 200, 300))
+        .subscribe(
+            { i -> println("RECEIVED: $i") },
+            { e -> println("RECEIVED ERROR: $e") }
+        )
+
+    /*
+        Prints:
+        RECEIVED: 2
+        RECEIVED: 5
+        RECEIVED: 2
+        doOnError() throwable: / by zero
+        RECEIVED: 100
+        RECEIVED: 200
+        RECEIVED: 300
+     */
+
+}
+
+private fun testOnErrorResumeNextWithCondition() {
+
+    println("🔧 testOnErrorResumeNextWithCondition()")
+
+    Observable.just(5, 2, 4, 0, 3, 2, 8)
+        .map { i -> 10 / i }
+        .doOnError {
+            println("doOnError() throwable: ${it.message}")
+        }
+        .onErrorResumeNext { e: Throwable ->
+            when (e) {
+                is ArithmeticException -> Observable.just(10, 20, 30)
+                else -> Observable.just(100, 200, 300)
+            }
+        }
+        .subscribe(
+            { i -> println("RECEIVED: $i") },
+            { e -> println("RECEIVED ERROR: $e") }
+        )
+
+}
+
+private fun testOnErrorResumeNextWithConditionAndObservableSource() {
+
+    println("🔧 testOnErrorReturnWithConditionAndObservableSource()")
+
+    Observable.just(5, 2, 4, 0, 3, 2, 8)
+        .map {
+            if (it == 0) throw ArithmeticException("Can not be 0")
+            it
+        }
+        .doOnError {
+            println("doOnError() throwable: ${it.message}")
+        }
+        .onErrorResumeNext { throwable: Throwable ->
+
+            if (throwable is NullPointerException) {
+                return@onErrorResumeNext ObservableSource<Int> {
+                    it.onNext(400)
+                }
+            } else {
+                return@onErrorResumeNext ObservableSource<Int> {
+                    it.onNext(500)
+                }
+            }
+
+        }
+        .subscribe(
+            { i -> println("RECEIVED: $i") },
+            { e -> println("RECEIVED ERROR: $e") }
+        )
+}
+
+
 
 /**
  * 🔥 INFO retry()
@@ -216,10 +338,14 @@ private fun testOnErrorResumeNextOperatorAndContinue() {
  */
 private fun testRetryOperator() {
 
+    println("🔧 testRetryOperator()")
+
+
     Observable.just(5, 2, 4, 0, 3, 2, 8)
         .map { i -> 10 / i }
         .retry(2)
-        .subscribe({ i -> println("RECEIVED: $i") },
+        .subscribe(
+            { i -> println("RECEIVED: $i") },
             { e -> println("RECEIVED ERROR: $e") }
         )
 

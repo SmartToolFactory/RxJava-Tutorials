@@ -1,12 +1,13 @@
 package chapter2obervables;
 
+import java.util.concurrent.TimeUnit;
+
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Consumer;
 import io.reactivex.observables.ConnectableObservable;
-
-import java.util.concurrent.TimeUnit;
+import io.reactivex.schedulers.Schedulers;
 
 public class Tutorial2_3ColdHotObservables {
 
@@ -107,10 +108,16 @@ public class Tutorial2_3ColdHotObservables {
         });
 
         Thread.sleep(3000);
-        source.map(i -> i + " sec").subscribe(s -> {
-            System.out.println("Observer 2 Received: " + s);
+        source
+                .map(i -> i + " sec")
 
-        });
+                .subscribeOn(Schedulers.computation())
+
+                .subscribe(s -> {
+                    System.out.println("Observer 2 Received: " + s);
+
+                });
+
 
         Thread.sleep(5000);
 
@@ -311,4 +318,6 @@ public class Tutorial2_3ColdHotObservables {
 
          */
     }
+
+
 }

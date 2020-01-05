@@ -12,15 +12,16 @@ import java.util.concurrent.TimeUnit
 
 fun main() {
 
+    // INFO zip
 //    testZipOperator()
-//
 //    testZipOperatorInterval()
-
 //    testZipOperatorInterval2()
-
 //    testZipOperatorInterval3()
 
-    testZipOperatorWithFlatMap()
+    // INFO zipWith
+    testZipWithOperator()
+
+//    testZipOperatorAndFlatMap()
 }
 
 
@@ -321,7 +322,38 @@ private fun testZipOperatorInterval3() {
 }
 
 
-private fun testZipOperatorWithFlatMap() {
+private fun testZipWithOperator() {
+
+    val letters = listOf("A", "B", "C", "D", "E")
+
+
+    Observable.fromIterable(letters)
+        .zipWith(
+            Observable.range(1, Integer.MAX_VALUE),
+            BiFunction { string: String, index: Int ->
+                "$index-$string"
+            })
+        .doOnComplete {
+            println("🚗zip() doOnComplete()")
+        }
+        .subscribe {
+            println("🚙zip() onNext() $it")
+        }
+
+    /*
+        Prints:
+        🚙zip() onNext() 1-A
+        🚙zip() onNext() 2-B
+        🚙zip() onNext() 3-C
+        🚙zip() onNext() 4-D
+        🚙zip() onNext() 5-E
+        🚗zip() doOnComplete()
+     */
+
+}
+
+
+private fun testZipOperatorAndFlatMap() {
 
     val source1 = Observable.just("Alpha", "Beta", "Gamma", "Delta", "Epsilon")
         .doOnNext {
@@ -333,6 +365,7 @@ private fun testZipOperatorWithFlatMap() {
         .doOnDispose {
             println("🔜🚗source1 doOnDispose()")
         }
+
     val source2 = Observable.range(1, 6)
         .doOnNext {
             println("🤑source2 doOnNext() $it")

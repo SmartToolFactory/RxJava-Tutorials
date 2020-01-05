@@ -15,9 +15,13 @@ fun main() {
 
 //    observableJust()
 
-    observableCreate2()
+//    observableCreate2()
 
 //    observableFromArray()
+
+//    observableLifeCycleMethods()
+//    observableLifeCycleMethodsWithMap()
+    observableLifeCycleMethodsWithMap2()
 }
 
 /**
@@ -275,4 +279,262 @@ private fun createTimer(seconds: Observable<Long>): Disposable {
                         + ", thread: " + Thread.currentThread().name
             )
         }
+}
+
+/**
+ * 🔥🔥🔥 Life cycle of Observable from subscription to completion
+ */
+private fun observableLifeCycleMethods() {
+
+    val source = Observable.just("Alpha", "Beta", "Gamma")
+
+
+    source
+
+        .doOnSubscribe {
+            println("doOnSubscribe() thread: ${Thread.currentThread().name}")
+        }
+        .doOnEach {
+            println("🎃 doOnEach() thread: ${Thread.currentThread().name}, event: ${it.value}")
+        }
+        .doOnNext {
+            println("🥶doOnNext() thread: ${Thread.currentThread().name}")
+        }
+        .doAfterNext {
+            println("😍 doAfterNext() thread: ${Thread.currentThread().name}")
+        }
+
+        .doOnComplete {
+            println("doOnComplete() thread: ${Thread.currentThread().name}")
+        }
+        .doOnTerminate {
+            println("doOnTerminate() thread: ${Thread.currentThread().name}")
+        }
+        .doAfterTerminate {
+            println("doAfterTerminate() thread: ${Thread.currentThread().name}")
+        }
+        .doFinally {
+            println("doFinally() thread: ${Thread.currentThread().name}")
+        }
+        .doOnDispose {
+            println("doOnDispose() thread: ${Thread.currentThread().name}")
+        }
+        .doOnError {
+            println("doOnError() ${it.message}")
+        }
+
+        .subscribe(
+            {
+                println("😎 subscribe() -> onNext(): thread: ${Thread.currentThread().name}")
+            },
+            {
+                println("😎 subscribe() -> onError(): thread: ${Thread.currentThread().name}, error: ${it.message}")
+
+            }
+        )
+
+
+    /*
+        Prints:
+        doOnSubscribe() thread: main
+        🎃 doOnEach() thread: main, event: Alpha
+        🥶doOnNext() thread: main
+        😎 subscribe() -> onNext(): thread: main
+        😍 doAfterNext() thread: main
+        🎃 doOnEach() thread: main, event: Beta
+        🥶doOnNext() thread: main
+        😎 subscribe() -> onNext(): thread: main
+        😍 doAfterNext() thread: main
+        🎃 doOnEach() thread: main, event: Gamma
+        🥶doOnNext() thread: main
+        😎 subscribe() -> onNext(): thread: main
+        😍 doAfterNext() thread: main
+        🎃 doOnEach() thread: main, event: null
+        doOnComplete() thread: main
+        doOnTerminate() thread: main
+        doFinally() thread: main
+        doAfterTerminate() thread: main
+     */
+
+}
+
+
+private fun observableLifeCycleMethodsWithMap() {
+
+    val source = Observable.just("Alpha", "Beta", "Gamma")
+
+
+    source
+
+        .doOnSubscribe {
+            println("doOnSubscribe() thread: ${Thread.currentThread().name}")
+        }
+        .doOnEach {
+            println("🎃 doOnEach() thread: ${Thread.currentThread().name}, event: ${it.value}")
+        }
+        .doOnNext {
+            println("🥶doOnNext() thread: ${Thread.currentThread().name}")
+        }
+        .doAfterNext {
+            println("😍 doAfterNext() thread: ${Thread.currentThread().name}")
+        }
+
+        .doOnComplete {
+            println("doOnComplete() thread: ${Thread.currentThread().name}")
+        }
+        .doOnTerminate {
+            println("doOnTerminate() thread: ${Thread.currentThread().name}")
+        }
+        .doAfterTerminate {
+            println("doAfterTerminate() thread: ${Thread.currentThread().name}")
+        }
+        .doFinally {
+            println("doFinally() thread: ${Thread.currentThread().name}")
+        }
+        .doOnDispose {
+            println("doOnDispose() thread: ${Thread.currentThread().name}")
+        }
+        .doOnError {
+            println("doOnError() ${it.message}")
+        }
+        // 🔥🔥🔥 Order of map method changes doOnNext -> map -> onSubscribe()
+        .map {
+            println("map() 1 thread: ${Thread.currentThread().name}")
+            it
+        }
+
+        .map {
+            println("map() 2 thread: ${Thread.currentThread().name}")
+            it
+        }
+
+        .subscribe(
+            {
+                println("😎 subscribe() -> onNext(): thread: ${Thread.currentThread().name}")
+            },
+            {
+                println("😎 subscribe() -> onError(): thread: ${Thread.currentThread().name}, error: ${it.message}")
+
+            }
+        )
+
+
+    /*
+        Prints:
+        🎃 doOnEach() thread: main, event: Alpha
+        🥶doOnNext() thread: main
+        map() 1 thread: main
+        map() 2 thread: main
+        😎 subscribe() -> onNext(): thread: main
+        😍 doAfterNext() thread: main
+        🎃 doOnEach() thread: main, event: Beta
+        🥶doOnNext() thread: main
+        map() 1 thread: main
+        map() 2 thread: main
+        😎 subscribe() -> onNext(): thread: main
+        😍 doAfterNext() thread: main
+        🎃 doOnEach() thread: main, event: Gamma
+        🥶doOnNext() thread: main
+        map() 1 thread: main
+        map() 2 thread: main
+        😎 subscribe() -> onNext(): thread: main
+        😍 doAfterNext() thread: main
+        🎃 doOnEach() thread: main, event: null
+        doOnComplete() thread: main
+        doOnTerminate() thread: main
+        doFinally() thread: main
+        doAfterTerminate() thread: main
+     */
+
+}
+
+private fun observableLifeCycleMethodsWithMap2() {
+
+    val source = Observable.just("Alpha", "Beta", "Gamma")
+
+
+    source
+
+        // 🔥🔥🔥 Order of map method changes map -> doOnNext -> onSubscribe()
+        .map {
+            println("map() 1 thread: ${Thread.currentThread().name}")
+            it
+        }
+
+        .map {
+            println("map() 2 thread: ${Thread.currentThread().name}")
+            it
+        }
+
+        .doOnSubscribe {
+            println("doOnSubscribe() thread: ${Thread.currentThread().name}")
+        }
+        .doOnEach {
+            println("🎃 doOnEach() thread: ${Thread.currentThread().name}, event: ${it.value}")
+        }
+        .doOnNext {
+            println("🥶doOnNext() thread: ${Thread.currentThread().name}")
+        }
+        .doAfterNext {
+            println("😍 doAfterNext() thread: ${Thread.currentThread().name}")
+        }
+
+        .doOnComplete {
+            println("doOnComplete() thread: ${Thread.currentThread().name}")
+        }
+        .doOnTerminate {
+            println("doOnTerminate() thread: ${Thread.currentThread().name}")
+        }
+        .doAfterTerminate {
+            println("doAfterTerminate() thread: ${Thread.currentThread().name}")
+        }
+        .doFinally {
+            println("doFinally() thread: ${Thread.currentThread().name}")
+        }
+        .doOnDispose {
+            println("doOnDispose() thread: ${Thread.currentThread().name}")
+        }
+        .doOnError {
+            println("doOnError() ${it.message}")
+        }
+
+        .subscribe(
+            {
+                println("😎 subscribe() -> onNext(): thread: ${Thread.currentThread().name}")
+            },
+            {
+                println("😎 subscribe() -> onError(): thread: ${Thread.currentThread().name}, error: ${it.message}")
+
+            }
+        )
+
+
+    /*
+        Prints:
+         doOnSubscribe() thread: main
+        map() 1 thread: main
+        map() 2 thread: main
+        🎃 doOnEach() thread: main, event: Alpha
+        🥶doOnNext() thread: main
+        😎 subscribe() -> onNext(): thread: main
+        😍 doAfterNext() thread: main
+        map() 1 thread: main
+        map() 2 thread: main
+        🎃 doOnEach() thread: main, event: Beta
+        🥶doOnNext() thread: main
+        😎 subscribe() -> onNext(): thread: main
+        😍 doAfterNext() thread: main
+        map() 1 thread: main
+        map() 2 thread: main
+        🎃 doOnEach() thread: main, event: Gamma
+        🥶doOnNext() thread: main
+        😎 subscribe() -> onNext(): thread: main
+        😍 doAfterNext() thread: main
+        🎃 doOnEach() thread: main, event: null
+        doOnComplete() thread: main
+        doOnTerminate() thread: main
+        doFinally() thread: main
+        doAfterTerminate() thread: main
+     */
+
 }

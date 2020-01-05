@@ -255,6 +255,7 @@ private fun testWithLatestFromOperatorInterval() {
             println("🔜🤑source2 doOnDispose()")
         }
 
+
     source1.withLatestFrom(source2, BiFunction { l1: Long, l2: Long ->
         "SOURCE 1: $l1 SOURCE 2: $l2"
     })
