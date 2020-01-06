@@ -7,6 +7,7 @@ import io.reactivex.Observer
 import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
+import java.lang.Thread.sleep
 
 private var timerRunning = false
 private var disposable: Disposable? = null
@@ -19,9 +20,9 @@ fun main() {
 
 //    observableFromArray()
 
-//    observableLifeCycleMethods()
+    observableLifeCycleMethods()
 //    observableLifeCycleMethodsWithMap()
-    observableLifeCycleMethodsWithMap2()
+//    observableLifeCycleMethodsWithMap2()
 }
 
 /**
@@ -283,7 +284,14 @@ private fun createTimer(seconds: Observable<Long>): Disposable {
 
 /**
  * 🔥🔥🔥 Life cycle of Observable from subscription to completion
- */
+ *
+ * *subscribeOn affects upstream operators (operators above the subscribeOn)
+ * *observeOn affects downstream operators (operators below the observeOn)
+ * *If only subscribeOn is specified, all operators will be be executed on that thread
+ * *If only observeOn is specified, all operators will be executed on the current thread and only operators below
+ * the observeOn will be switched to thread specified by the observeOn
+*/
+
 private fun observableLifeCycleMethods() {
 
     val source = Observable.just("Alpha", "Beta", "Gamma")
@@ -333,6 +341,7 @@ private fun observableLifeCycleMethods() {
             }
         )
 
+    sleep(1000)
 
     /*
         Prints:
@@ -359,13 +368,19 @@ private fun observableLifeCycleMethods() {
 }
 
 
+/**
+ * *subscribeOn affects upstream operators (operators above the subscribeOn)
+ * *observeOn affects downstream operators (operators below the observeOn)
+ * *If only subscribeOn is specified, all operators will be be executed on that thread
+ * *If only observeOn is specified, all operators will be executed on the current thread and only operators below
+ * the observeOn will be switched to thread specified by the observeOn
+ */
 private fun observableLifeCycleMethodsWithMap() {
 
     val source = Observable.just("Alpha", "Beta", "Gamma")
 
 
     source
-
         .doOnSubscribe {
             println("doOnSubscribe() thread: ${Thread.currentThread().name}")
         }
@@ -407,7 +422,6 @@ private fun observableLifeCycleMethodsWithMap() {
             println("map() 2 thread: ${Thread.currentThread().name}")
             it
         }
-
         .subscribe(
             {
                 println("😎 subscribe() -> onNext(): thread: ${Thread.currentThread().name}")
@@ -417,6 +431,8 @@ private fun observableLifeCycleMethodsWithMap() {
 
             }
         )
+
+    sleep(1000)
 
 
     /*
@@ -454,6 +470,9 @@ private fun observableLifeCycleMethodsWithMap2() {
 
 
     source
+
+        .subscribeOn(Schedulers.newThread())
+
 
         // 🔥🔥🔥 Order of map method changes map -> doOnNext -> onSubscribe()
         .map {
@@ -498,6 +517,8 @@ private fun observableLifeCycleMethodsWithMap2() {
             println("doOnError() ${it.message}")
         }
 
+
+
         .subscribe(
             {
                 println("😎 subscribe() -> onNext(): thread: ${Thread.currentThread().name}")
@@ -507,6 +528,8 @@ private fun observableLifeCycleMethodsWithMap2() {
 
             }
         )
+
+    sleep(1000)
 
 
     /*

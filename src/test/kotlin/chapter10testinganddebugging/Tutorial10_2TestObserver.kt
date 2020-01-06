@@ -3,7 +3,9 @@ package chapter10testinganddebugging
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 import io.reactivex.observers.TestObserver
+import io.reactivex.schedulers.Schedulers
 import org.junit.jupiter.api.Test
+import java.util.*
 import java.util.concurrent.TimeUnit
 
 class Tutorial10_2TestObserver {
@@ -102,6 +104,51 @@ class Tutorial10_2TestObserver {
         testObserver.assertNotComplete()
 
         testObserver.dispose()
+
+    }
+
+    @Test
+    fun `Test got an user`() {
+        val result = getUserObservable("John", "Wick")
+        val testObserver = TestObserver<User>()
+
+        result
+            .doOnNext { println("doOnNext() $it") }
+            .doOnComplete { println("doOnComplete() ${Thread.currentThread().name}") }
+            .subscribe(testObserver)
+
+        // Waits answer to mock answer to come after delay
+        testObserver.awaitTerminalEvent()
+
+        testObserver.assertComplete()
+        testObserver.assertNoErrors()
+        testObserver.assertValueCount(1)
+        testObserver.assertValues(User("John", "Wick"))
+
+
+    }
+
+
+    private fun getUserObservable(name: String, surName: String): Observable<User> {
+
+        return Observable.just(User(name, surName))
+
+            .map {
+                println("START thread: ${Thread.currentThread().name}")
+                it
+            }
+            .delay(3, TimeUnit.SECONDS)
+            .map {
+                println("getUserObservable() -> map() $it, thread: ${Thread.currentThread().name}")
+                it
+            }
+            .subscribeOn(Schedulers.io())
+
+    }
+
+    data class User(val name: String, val surName: String) {
+
+        val id = UUID.randomUUID().toString()
 
     }
 }
