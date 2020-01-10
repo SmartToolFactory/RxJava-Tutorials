@@ -1,9 +1,6 @@
 package chapter1basics
 
-import io.reactivex.Observable
-import io.reactivex.ObservableEmitter
-import io.reactivex.ObservableOnSubscribe
-import io.reactivex.Observer
+import io.reactivex.*
 import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Consumer
 import io.reactivex.schedulers.Schedulers
@@ -20,10 +17,17 @@ fun main() {
 
 //    observableFromArray()
 
-    observableLifeCycleMethods()
+//    observableLifeCycleMethods()
 //    observableLifeCycleMethodsWithMap()
 //    observableLifeCycleMethodsWithMap2()
+
+//    andThen()
+
+    flattenAsObservableOperator()
+//    flatMapIterableOperator()
 }
+
+
 
 /**
  * Observable created with just operator
@@ -290,7 +294,7 @@ private fun createTimer(seconds: Observable<Long>): Disposable {
  * *If only subscribeOn is specified, all operators will be be executed on that thread
  * *If only observeOn is specified, all operators will be executed on the current thread and only operators below
  * the observeOn will be switched to thread specified by the observeOn
-*/
+ */
 
 private fun observableLifeCycleMethods() {
 
@@ -468,7 +472,6 @@ private fun observableLifeCycleMethodsWithMap2() {
 
     val source = Observable.just("Alpha", "Beta", "Gamma")
 
-
     source
 
         .subscribeOn(Schedulers.newThread())
@@ -518,7 +521,6 @@ private fun observableLifeCycleMethodsWithMap2() {
         }
 
 
-
         .subscribe(
             {
                 println("😎 subscribe() -> onNext(): thread: ${Thread.currentThread().name}")
@@ -559,5 +561,44 @@ private fun observableLifeCycleMethodsWithMap2() {
         doFinally() thread: main
         doAfterTerminate() thread: main
      */
+
+}
+
+
+private fun andThen() {
+
+    Single.just("Hello")
+        .flatMapCompletable {
+            Completable.complete()
+        }
+        .andThen(Maybe.just("Maybe"))
+        .subscribe {
+            println("Result $it")
+        }
+
+}
+
+private fun flattenAsObservableOperator() {
+
+    val numbers = listOf(1, 2, 3, 4, 5)
+
+
+    Single.just(numbers).flattenAsObservable {
+        it
+    }.subscribe {
+        println("flattenAsObservableO() onNext(): Result $it")
+    }
+}
+
+private fun flatMapIterableOperator() {
+
+    val numbers = listOf(1, 2, 3, 4, 5)
+
+
+    Observable.just(numbers).flatMapIterable {
+        it
+    }.subscribe {
+        println("flatMapIterable() onNext(): Result $it")
+    }
 
 }
