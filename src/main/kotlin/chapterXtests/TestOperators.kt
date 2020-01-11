@@ -1,6 +1,9 @@
 package chapterXtests
 
+import io.reactivex.Completable
+import io.reactivex.Maybe
 import io.reactivex.Observable
+import io.reactivex.Single
 import io.reactivex.schedulers.TestScheduler
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -9,14 +12,15 @@ import java.util.concurrent.TimeUnit
 fun main() {
 
     flatMap()
-
     switchMap()
-
-
     concatMap()
+
+    //    andThen()
+
+    flattenAsObservableOperator()
+//    flatMapIterableOperator()
 }
 
-@Throws(Exception::class)
 fun flatMap() {
 
     println("flatMap()")
@@ -37,7 +41,6 @@ fun flatMap() {
     scheduler.advanceTimeBy(1, TimeUnit.MINUTES)
 }
 
-@Throws(Exception::class)
 fun switchMap() {
 
     println("switchMap()")
@@ -58,7 +61,6 @@ fun switchMap() {
     scheduler.advanceTimeBy(1, TimeUnit.MINUTES)
 }
 
-@Throws(Exception::class)
 fun concatMap() {
 
     println("concatMap()")
@@ -77,4 +79,42 @@ fun concatMap() {
         .subscribe { strings -> println("concatMap onNext() : $strings") }
 
     scheduler.advanceTimeBy(1, TimeUnit.MINUTES)
+}
+
+private fun andThen() {
+
+    Single.just("Hello")
+        .flatMapCompletable {
+            Completable.complete()
+        }
+        .andThen(Maybe.just("Maybe"))
+        .subscribe {
+            println("Result $it")
+        }
+
+}
+
+private fun flattenAsObservableOperator() {
+
+    val numbers = listOf(1, 2, 3, 4, 5)
+
+
+    Single.just(numbers).flattenAsObservable {
+        it
+    }.subscribe {
+        println("flattenAsObservableO() onNext(): Result $it")
+    }
+}
+
+private fun flatMapIterableOperator() {
+
+    val numbers = listOf(1, 2, 3, 4, 5)
+
+
+    Observable.just(numbers).flatMapIterable {
+        it
+    }.subscribe {
+        println("flatMapIterable() onNext(): Result $it")
+    }
+
 }

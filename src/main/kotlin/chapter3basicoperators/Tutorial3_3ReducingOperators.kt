@@ -125,7 +125,8 @@ private fun testContains() {
 
     Observable.range(1, 10000)
         .contains(9563) // Single
-        .subscribe { s -> println("onSuccess() Received: $s") }
+        .subscribe {
+                s -> println("onSuccess() Received: $s") }
     /*
         Prints:
         onSuccess() Received: true

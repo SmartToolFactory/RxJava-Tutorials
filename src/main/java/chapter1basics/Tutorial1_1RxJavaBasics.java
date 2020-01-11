@@ -1,7 +1,5 @@
 package chapter1basics;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
@@ -21,11 +19,7 @@ import io.reactivex.functions.Consumer;
 import io.reactivex.observers.DisposableSingleObserver;
 import io.reactivex.schedulers.Schedulers;
 
-public class Tutorial1RxJavaBasics {
-
-    private boolean timerRunning = false;
-    private Disposable disposable;
-
+public class Tutorial1_1RxJavaBasics {
 
     public static void main(String[] args) {
         System.out.println("Initialized...");
@@ -33,7 +27,6 @@ public class Tutorial1RxJavaBasics {
 //        testSingle();
 
         testObservable();
-
 
 //        testCreate();
 
@@ -304,28 +297,8 @@ public class Tutorial1RxJavaBasics {
     }
 
 
-    private void setTimer(Observable<Long> seconds) {
-
-        if (timerRunning) {
-            Observable<Long> longObservable = seconds.unsubscribeOn(Schedulers.computation());
-            disposable.dispose();
-        } else {
-            disposable = createTimer(seconds);
-        }
-
-        timerRunning = !timerRunning;
-    }
-
-    @NotNull
-    private Disposable createTimer(Observable<Long> seconds) {
-
-        return seconds
-                .subscribe(l ->
-                        System.out.println("Observer 1: " + l
-                                + ", thread: " + Thread.currentThread().getName()));
-    }
-
     private static void testMapOperator() {
+
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("M/d/yyyy");
                 Observable.just("1/3/2016", "5/9/2016", "10/12/2016")
                         .map(s -> LocalDate.parse(s, dtf))
@@ -334,7 +307,7 @@ public class Tutorial1RxJavaBasics {
 
 
     private static void testScanOperator() {
-        Observable.just(
+        Disposable disposable = Observable.just(
                 "Alpha", "Beta", "Gamma", "Delta", "Epsilon")
                 .scan(0, new BiFunction<Integer, String, Integer>() {
                     @Override
@@ -342,9 +315,9 @@ public class Tutorial1RxJavaBasics {
                         return integer + 1;
                     }
                 })
-        .subscribe(s-> System.out.println("RECEIVED: " + s));
+                .subscribe(s -> System.out.println("RECEIVED: " + s));
 
-
+        disposable.dispose();
     }
 
 }

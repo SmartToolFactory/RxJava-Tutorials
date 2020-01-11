@@ -19,9 +19,9 @@ fun main() {
 //    testZipOperatorInterval3()
 
     // INFO zipWith
-    testZipWithOperator()
+//    testZipWithOperator()
 
-//    testZipOperatorAndFlatMap()
+    testZipOperatorAndFlatMap()
 }
 
 
@@ -388,6 +388,29 @@ private fun testZipOperatorAndFlatMap() {
         .subscribe {
             println("🚙zip() onNext() $it")
         }
+
+    /*
+        Prints:
+        🚗source1 doOnNext() Alpha
+        🚗source1 doOnNext() Beta
+        🚗source1 doOnNext() Gamma
+        🚗source1 doOnNext() Delta
+        🚗source1 doOnNext() Epsilon
+        🚗source1 doOnComplete()
+        🤑source2 doOnNext() 1
+        🚙zip() onNext() Person(firstName=Alpha-1, surName=Alpha-1)
+        🤑source2 doOnNext() 2
+        🚙zip() onNext() Person(firstName=Beta-2, surName=Beta-2)
+        🤑source2 doOnNext() 3
+        🚙zip() onNext() Person(firstName=Gamma-3, surName=Gamma-3)
+        🤑source2 doOnNext() 4
+        🚙zip() onNext() Person(firstName=Delta-4, surName=Delta-4)
+        🤑source2 doOnNext() 5
+        🚙zip() onNext() Person(firstName=Epsilon-5, surName=Epsilon-5)
+        🔜🚗source1 doOnDispose()
+        🔜🤑source2 doOnDispose()
+        🚙zip() doOnComplete()
+     */
 
 
     sleep(15000)

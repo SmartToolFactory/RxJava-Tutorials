@@ -1,6 +1,7 @@
 package chapter3basicoperators
 
 import io.reactivex.Observable
+import java.lang.Thread.sleep
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
@@ -32,7 +33,9 @@ fun main() {
 
     // INFO scan
 //    testScanOperator()
-    testScanOperatorWithString()
+//    testScanOperatorWithString()
+    testScanOperatorFibonacci()
+
 }
 
 /**
@@ -64,9 +67,11 @@ private fun testMapOperator() {
 }
 
 private fun testCastOperator() {
-    val items: Observable<Any> = Observable.just("Alpha", "Beta", "Gamma").map { s -> s as Any }
+    val items: Observable<Any> = Observable.just("Alpha", "Beta", "Gamma")
+        .map { s -> s as Any }
 
-    val itemsWithCast: Observable<Any> = Observable.just("Alpha", "Beta", "Gamma").cast(Any::class.java)
+    val itemsWithCast: Observable<Any> =
+        Observable.just("Alpha", "Beta", "Gamma").cast(Any::class.java)
 }
 
 /**
@@ -82,7 +87,7 @@ private fun testStartWithOperator() {
     val menu = Observable.just("Coffee", "Tea", "Espresso", "Latte")
 
     //print menu
-    menu.startWith("COFFEE SHOP MENU").subscribe(System.out::println);
+    menu.startWith("COFFEE SHOP MENU").subscribe(System.out::println)
 
     /*
         Prints:
@@ -102,7 +107,7 @@ private fun testStartWithOperator() {
 
     //print menu
     menu.startWithArray("COFFEE SHOP MENU", "----------------")
-        .subscribe(System.out::println);
+        .subscribe(System.out::println)
 }
 
 /**
@@ -160,7 +165,7 @@ private fun testSwitchIfEmptyOperator() {
 private fun testSortedOperator() {
     Observable.just(6, 2, 5, 7, 1, 4, 9, 8, 3)
         .sorted()
-        .subscribe(System.out::print);
+        .subscribe(System.out::print)
     /*
         Prints:
         123456789
@@ -171,7 +176,7 @@ private fun testSortedOperator() {
 
     Observable.just(6, 2, 5, 7, 1, 4, 9, 8, 3)
         .sorted(Comparator.reverseOrder())
-        .subscribe(System.out::print);
+        .subscribe(System.out::print)
 
 
 }
@@ -337,5 +342,24 @@ private fun testScanOperatorWithString() {
         RECEIVED: 4
         RECEIVED: 5
      */
+
+}
+
+private fun testScanOperatorFibonacci() {
+
+    // Fibonacci
+    // Index    0,  1,  2,  3,  4,  5,  6, 7
+    // Result   0,  1,  1,  2,  3,  5,  8, 13
+
+    Observable.interval(1, TimeUnit.SECONDS)
+        .scan(0.0, { accumulator, next ->
+            println("accumulator: $accumulator, next: $next")
+            accumulator + next
+        })
+        .subscribe {
+            println("Total: $it")
+        }
+
+    sleep(10000)
 
 }

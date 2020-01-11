@@ -33,8 +33,7 @@ fun main() {
     // INFO distinctUntilChanged
 //    testDistinctUntilChanged()
 
-    // INFO e
-    // ,ülementAt
+    // INFO elementAt
     testElementAtOperator()
 }
 

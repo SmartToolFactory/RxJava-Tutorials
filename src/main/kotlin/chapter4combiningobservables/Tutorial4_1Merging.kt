@@ -12,8 +12,8 @@ fun main() {
 
     // INFO merge
 //    testMergeOperator()
-    testMergeArrayOperator()
-//    testMergeOperatorWithList()
+//    testMergeArrayOperator()
+    testMergeOperatorWithList()
 //    testMergeOperatorInterval()
 
     // INFO mergeWith
@@ -61,7 +61,7 @@ private fun testMergeOperator() {
         RECEIVED: Theta
      */
 
-    // 🔥🔥🔥 WARNING merge operator waits until first stream end and merges next one after that
+    // 🔥🔥🔥 WARNING merge operator waits until first stream ends and merges next one after that
 
 
 }
@@ -111,7 +111,21 @@ private fun testMergeOperatorWithList() {
 
     val sources = listOf(source1, source2, source3, source4, source5)
 
-    Observable.merge(sources).subscribe { i -> println("RECEIVED: $i") }
+    Observable.merge(sources).subscribe { i -> println("🚗 onNext(): $i") }
+
+    /*
+        Prints:
+        🚗 onNext(): Alpha
+        🚗 onNext(): Beta
+        🚗 onNext(): Gamma
+        🚗 onNext(): Delta
+        🚗 onNext(): Epsilon
+        🚗 onNext(): Zeta
+        🚗 onNext(): Eta
+        🚗 onNext(): Theta
+        🚗 onNext(): Iota
+        🚗 onNext(): Kappa
+     */
 }
 
 /**
@@ -278,7 +292,7 @@ private fun testFlatMapOperator2() {
         }
 
 
-    Thread.sleep(5000)
+    sleep(5000)
 
 
 }

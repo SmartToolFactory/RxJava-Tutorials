@@ -58,7 +58,6 @@ private fun testObservableInterval() {
 
 }
 
-@Throws(InterruptedException::class)
 private fun testObservableIntervalMultiple() {
 
     println("testObservableIntervalMultiple()")
@@ -145,7 +144,6 @@ private fun testObservableEmpty() {
     )
 }
 
-@Throws(InterruptedException::class)
 private fun testObservableNever() {
 
     println("testObservableNever()")

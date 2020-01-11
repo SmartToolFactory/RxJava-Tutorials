@@ -6,8 +6,8 @@ import java.util.concurrent.TimeUnit
 
 
 fun main() {
-    testAmbOperator()
-//    testAmbOperatorOperatorInterval()
+//    testAmbOperator()
+    testAmbOperatorOperatorInterval()
 
 
 }
@@ -41,6 +41,13 @@ private fun testAmbOperator() {
             println(it)
         }
 
+    /*
+        Prints:
+        Apple
+        Orange
+        Banana
+     */
+
     sleep(6000)
 
 }
@@ -70,6 +77,20 @@ private fun testAmbOperatorOperatorInterval() {
     //emit Observable that emits first
     Observable.amb(arr.toList())
         .subscribe { i -> println("RECEIVED: $i") }
+
+    /*
+        Prints:
+        RECEIVED: Source2: 300 milliseconds
+        RECEIVED: Source2: 600 milliseconds
+        RECEIVED: Source2: 900 milliseconds
+        RECEIVED: Source2: 1200 milliseconds
+        RECEIVED: Source2: 1500 milliseconds
+        RECEIVED: Source2: 1800 milliseconds
+        RECEIVED: Source2: 2100 milliseconds
+        RECEIVED: Source2: 2400 milliseconds
+        RECEIVED: Source2: 2700 milliseconds
+        RECEIVED: Source2: 3000 milliseconds
+     */
 
     sleep(3000)
 

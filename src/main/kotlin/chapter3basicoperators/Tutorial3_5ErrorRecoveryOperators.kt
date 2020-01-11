@@ -365,8 +365,10 @@ private fun testRetryOperator() {
 
     /*
      INFO
-        You can also provide Predicate<Throwable> or BiPredicate<Integer,Throwable> to conditionally control when retry() is attempted.
+        You can also provide Predicate<Throwable> or BiPredicate<Integer,Throwable>
+        to conditionally control when retry() is attempted.
         The retryUntil() operator will allow retries while a given BooleanSupplier lambda is false.
-        There is also an advanced retryWhen() operator that supports advanced composition for tasks such as delaying retries.
+        There is also an advanced retryWhen() operator that supports advanced composition
+        for tasks such as delaying retries.
      */
 }
