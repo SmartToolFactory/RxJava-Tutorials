@@ -93,8 +93,8 @@ private fun testWithoutMulticasting() {
             randomInt()
         }
 
-    threeRandoms.subscribe { i -> println("Observer 1:$i") }
-    threeRandoms.subscribe { i -> println("Observer 2:$i") }
+    threeRandoms.subscribe { i -> println("Observer 1: $i") }
+    threeRandoms.subscribe { i -> println("Observer 2: $i") }
 
     /*
         Prints:

@@ -29,7 +29,7 @@ private fun testReplayOperatorWithNoArguments() {
 
     val seconds = Observable.interval(1, TimeUnit.SECONDS)
         .replay()
-        .autoConnect();
+        .autoConnect()
 
     //Observer 1
     seconds.subscribe { i -> println("🚗 Observer 1: $i") }
@@ -64,7 +64,7 @@ private fun testReplayWithArguments() {
 
     val seconds = Observable.interval(1, TimeUnit.SECONDS)
         .replay(2)
-        .autoConnect();
+        .autoConnect()
 
     //Observer 1
     val disposable = seconds

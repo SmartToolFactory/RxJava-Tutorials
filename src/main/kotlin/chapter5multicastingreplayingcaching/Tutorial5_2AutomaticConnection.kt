@@ -83,7 +83,7 @@ private fun testAutoConnectOperatorWithNumberOfSubscribers() {
     threeRandoms.subscribe { i -> println("Observer 1: $i") }
 
     //Observer 2 - print each random integer
-    threeRandoms.subscribe { i -> println("Observer 2:$i") }
+    threeRandoms.subscribe { i -> println("Observer 2: $i") }
 
     //Observer 3 - receives nothing
     threeRandoms.subscribe { i -> println("Observer 3: $i") }
@@ -92,13 +92,13 @@ private fun testAutoConnectOperatorWithNumberOfSubscribers() {
         Prints:
         map() 1
         Observer 1: 67463
-        Observer 2:67463
+        Observer 2: 67463
         map() 2
         Observer 1: 63161
-        Observer 2:63161
+        Observer 2: 63161
         map() 3
         Observer 1: 9620
-        Observer 2:9620
+        Observer 2: 9620
      */
 }
 
