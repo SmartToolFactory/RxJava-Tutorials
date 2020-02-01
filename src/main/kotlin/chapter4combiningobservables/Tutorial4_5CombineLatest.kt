@@ -2,6 +2,7 @@ package chapter4combiningobservables
 
 import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
+import io.reactivex.subjects.BehaviorSubject
 import java.lang.Thread.sleep
 import java.util.concurrent.TimeUnit
 
@@ -13,8 +14,12 @@ fun main() {
 //    testCombineLatestOperatorInterval()
 
     // INFO withLatestFrom
-    testWithLatestFromOperator()
+//    testWithLatestFromOperator()
 //    testWithLatestFromOperatorInterval()
+
+
+    testWithLatestFromOperatorInterval2()
+
 
 }
 
@@ -233,7 +238,7 @@ private fun testWithLatestFromOperator() {
  */
 private fun testWithLatestFromOperatorInterval() {
 
-    val source1 = Observable.interval(300, TimeUnit.MILLISECONDS)
+    val source1 = Observable.interval(1000, TimeUnit.MILLISECONDS)
         .doOnNext {
             println("🚗source1 doOnNext() $it")
         }
@@ -244,7 +249,7 @@ private fun testWithLatestFromOperatorInterval() {
             println("🔜🚗source1 doOnDispose()")
         }
 
-    val source2 = Observable.interval(1, TimeUnit.SECONDS)
+    val source2 = Observable.interval(300, TimeUnit.MILLISECONDS)
         .doOnNext {
             println("🤑source2 doOnNext() $it")
         }
@@ -272,25 +277,7 @@ private fun testWithLatestFromOperatorInterval() {
     /*
         Prints:
 
-        source2.withLatestFrom(source1,...)
-
-        🚗source1 doOnNext() 0
-        🚗source1 doOnNext() 1
-        🚗source1 doOnNext() 2
-        🤑source2 doOnNext() 0
-        🚙withLatestFrom() onNext() SOURCE 1: 0 SOURCE 2: 2
-        🚗source1 doOnNext() 3
-        🚗source1 doOnNext() 4
-        🚗source1 doOnNext() 5
-        🤑source2 doOnNext() 1
-        🚙withLatestFrom() onNext() SOURCE 1: 1 SOURCE 2: 5
-        🚗source1 doOnNext() 6
-        🚗source1 doOnNext() 7
-        🚗source1 doOnNext() 8
-        🤑source2 doOnNext() 2
-        🚗source1 doOnNext() 9
-        🚙withLatestFrom() onNext() SOURCE 1: 2 SOURCE 2: 8
-
+        // RESULT depends on Source1 🚗 after first emission 🤑 comes from Source2
 
         source1.withLatestFrom(source2,...)
         🚗source1 doOnNext() 0
@@ -313,6 +300,28 @@ private fun testWithLatestFromOperatorInterval() {
         🤑source2 doOnNext() 2
         🚗source1 doOnNext() 9
         🚙withLatestFrom() onNext() SOURCE 1: 9 SOURCE 2: 2
+
+
+        source2.withLatestFrom(source1,...)
+
+        // RESULT depends on Source2 🤑 after first emission 🚗 comes from Source1
+
+        🚗source1 doOnNext() 0
+        🚗source1 doOnNext() 1
+        🚗source1 doOnNext() 2
+        🤑source2 doOnNext() 0
+        🚙withLatestFrom() onNext() SOURCE 1: 0 SOURCE 2: 2
+        🚗source1 doOnNext() 3
+        🚗source1 doOnNext() 4
+        🚗source1 doOnNext() 5
+        🤑source2 doOnNext() 1
+        🚙withLatestFrom() onNext() SOURCE 1: 1 SOURCE 2: 5
+        🚗source1 doOnNext() 6
+        🚗source1 doOnNext() 7
+        🚗source1 doOnNext() 8
+        🤑source2 doOnNext() 2
+        🚗source1 doOnNext() 9
+        🚙withLatestFrom() onNext() SOURCE 1: 2 SOURCE 2: 8
      */
 
     /*
@@ -328,3 +337,56 @@ private fun testWithLatestFromOperatorInterval() {
 
     // WARNING It emits after taking the latest emission but emit value just after caller Observable has changed
 }
+
+
+fun testWithLatestFromOperatorInterval2() {
+
+    val qrResult = BehaviorSubject.createDefault("")
+
+
+    getPeriodicUpdate()
+        .withLatestFrom(qrResult,
+            BiFunction { time: Long, result: String ->
+
+                if (time % 5.0 == 0.0) {
+                    ""
+                } else {
+                    result
+                }
+
+            }
+        )
+        .distinctUntilChanged()
+        .filter {
+            !it.isNullOrBlank()
+        }
+        .subscribe {
+            println("Result: $it")
+        }
+
+
+    val strList = listOf(
+        "Hello5", "Hello5",
+        "Hello5", "Hello5", "Hello3",
+        "Hello3", "Hello3",
+        "Hello2", "Hello2", "Hello3",
+        "Hello5", "Hello3",
+        "Hello4", "Hello4", "Hello1"
+
+    )
+
+    getPeriodicUpdate(400)
+        .take((strList.size - 1).toLong())
+        .subscribe {
+            val str = strList[it.toInt()]
+            qrResult.onNext(str)
+        }
+
+
+    sleep(10_000)
+
+}
+
+private fun getPeriodicUpdate(period: Long = 1000): Observable<Long> =
+    Observable.interval(period, TimeUnit.MILLISECONDS).startWith(0)
+

@@ -96,9 +96,9 @@ private fun testMaybe() {
     val emptySource = Maybe.empty<Int>()
 
     emptySource.subscribe(
-        { s -> println("Process 2 received: " + s!!) },
-        { it.printStackTrace() },
-        { println("Process 2 done!") }
+        { s -> println("onSuccess(): Process 2 received: " + s!!) },
+        { "onError() ${it.message}"},
+        { println("onComplete()") }
     )
 
 
