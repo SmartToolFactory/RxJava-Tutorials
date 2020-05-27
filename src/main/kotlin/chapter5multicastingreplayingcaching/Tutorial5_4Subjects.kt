@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit
  */
 fun main() {
     // INFO PublishSubject
-//    testPublishSubject()
+    testPublishSubject()
 
 //    testSubjectAsObserver()
 

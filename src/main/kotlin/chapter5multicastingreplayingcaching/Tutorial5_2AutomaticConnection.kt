@@ -18,10 +18,10 @@ import java.util.concurrent.TimeUnit
 fun main() {
 
     // INFO autoConnect
-    testAutoConnectOperator()
+//    testAutoConnectOperator()
 //    testAutoConnectOperatorWithNumberOfSubscribers()
 //    testAutoConnectOperatorWithNumberOfSubscribers2()
-//    testAutoConnectWithZeroSubscribers()
+    testAutoConnectWithZeroSubscribers()
 
     // INFO refCount
 //    testRefCountOperator()
@@ -45,20 +45,20 @@ private fun testAutoConnectOperator() {
 
     // WARNING If numberOfSubscribers of autoConnect() is higher than observers it does not emit anything
 
-    threeRandoms.subscribe { i -> println("Observer 1: $i") }
-    threeRandoms.subscribe { i -> println("Observer 2:$i") }
+    threeRandoms.subscribe { i -> println("😛 Observer 1: $i") }
+    threeRandoms.subscribe { i -> println("🎃 Observer 2:$i") }
 
     /*
         Prints:
         map() 1
-        Observer 1: 67463
-        Observer 2:67463
+        😛 Observer 1: 27487
+        🎃 Observer 2:27487
         map() 2
-        Observer 1: 63161
-        Observer 2:63161
+        😛 Observer 1: 8750
+        🎃 Observer 2:8750
         map() 3
-        Observer 1: 9620
-        Observer 2:9620
+        😛 Observer 1: 46367
+        🎃 Observer 2:46367
      */
 }
 
@@ -72,33 +72,34 @@ private fun testAutoConnectOperator() {
  */
 private fun testAutoConnectOperatorWithNumberOfSubscribers() {
     val threeRandoms =
-        Observable.range(1, 3).map { i ->
-            println("map() $i")
-            randomInt()
-        }
+        Observable.range(1, 3)
+            .map { i ->
+                println("map() $i")
+                randomInt()
+            }
             .publish()
             .autoConnect(2)
 
     //Observer 1 - print each random integer
-    threeRandoms.subscribe { i -> println("Observer 1: $i") }
+    threeRandoms.subscribe { i -> println("😛 Observer 1: $i") }
 
     //Observer 2 - print each random integer
-    threeRandoms.subscribe { i -> println("Observer 2: $i") }
+    threeRandoms.subscribe { i -> println("🎃Observer 2: $i") }
 
     //Observer 3 - receives nothing
-    threeRandoms.subscribe { i -> println("Observer 3: $i") }
+    threeRandoms.subscribe { i -> println("😱 Observer 3: $i") }
 
     /*
         Prints:
         map() 1
-        Observer 1: 67463
-        Observer 2: 67463
+        😛 Observer 1: 31419
+        🎃Observer 2: 31419
         map() 2
-        Observer 1: 63161
-        Observer 2: 63161
+        😛 Observer 1: 61369
+        🎃Observer 2: 61369
         map() 3
-        Observer 1: 9620
-        Observer 2: 9620
+        😛 Observer 1: 7211
+        🎃Observer 2: 7211
      */
 }
 
@@ -131,12 +132,12 @@ private fun testAutoConnectOperatorWithNumberOfSubscribers2() {
 
 
 /**
- * Note that if you pass no argument for **numberOfSubscribers**, it will default to **1**.
+ * * Note that if you pass no argument for **numberOfSubscribers**, it will default to **1**.
  * This can be helpful if you want it to start firing on the first subscription and
  * do not care about any subsequent Observers missing previous emissions.
  * Here, we **publish** and **autoConnect** the **Observable.interval()**.
  *
- * The first **Observer** starts the firing of emissions, and 3 seconds later,
+ * * The first **Observer** starts the firing of emissions, and 3 seconds later,
  * another **Observer** comes in but misses the first few emissions.
  * But it does receive the live emissions from that point on
  */
@@ -155,6 +156,11 @@ private fun testAutoConnectWithZeroSubscribers() {
     seconds.subscribe { i -> println("🤑 Observer 2: $i") }
 
     sleep(3000)
+
+    //Observer 2
+    seconds.subscribe { i -> println("🥶 Observer 3: $i") }
+
+    sleep(5000)
 
     /*
         Prints:
@@ -188,6 +194,8 @@ private fun testRefCountOperator() {
         .publish()
         .refCount()
 
+    // 🔥 publish().refCount = share()
+
     //Observer 1
     seconds
         .take(5)
@@ -204,6 +212,7 @@ private fun testRefCountOperator() {
 
     // here should be no more Observers at this point
 
+    // 🔥 Emission starts over here because observable disposes itself when there are no observers
     //Observer
     seconds.subscribe { l -> println("Observer 3: $l") }
 

@@ -1,6 +1,7 @@
 package chapter5multicastingreplayingcaching
 
 import io.reactivex.Observable
+import java.lang.Thread.sleep
 import java.util.concurrent.ThreadLocalRandom
 
 
@@ -15,25 +16,27 @@ fun main() {
 //    testColdObservables()
 //    testConnectableObservable()
 
-    // INFO Multicasting with operatos
+    // INFO Multicasting with operators
 //    testWithoutMulticasting()
-//    testMulticasting()
-    testWithoutMulticasting2()
+    testMulticasting()
+//    testWithoutMulticasting2()
 //    testWithMulticasting2()
 }
 
 
 /**
  *  Observer One received all three emissions and called onComplete().
- *  After that, Observer Two received the three emissions (which were regenerated again) and called onComplete().
+ *  After that, Observer Two received the three emissions (which were regenerated again)
+ *  and called onComplete().
+ *
  *  These were two separate streams of data generated for two separate subscriptions.
  */
 private fun testColdObservables() {
 
-    val threeIntegers = Observable.range(1, 3);
+    val threeIntegers = Observable.range(1, 3)
 
-    threeIntegers.subscribe { i -> println("Observer One: $i") };
-    threeIntegers.subscribe { i -> println("Observer Two: $i") };
+    threeIntegers.subscribe { i -> println("Observer One: $i") }
+    threeIntegers.subscribe { i -> println("Observer Two: $i") }
 
     /*
         Prints:
@@ -48,18 +51,21 @@ private fun testColdObservables() {
 }
 
 /**
- *
+ * Using ConnectableObservable will force emissions from the source to become hot,
+ * pushing a single stream of emissions to all Observers at the same time
+ * rather than giving a separate stream to each Observer. This idea of stream consolidation
+ * is known as multicasting, but there are nuances to it, especially when operators become involved.
+ * Even when you call `publish()` and use a `ConnectableObservable`
  */
 private fun testConnectableObservable() {
 
-    val threeIntegers = Observable.range(1, 3).publish();
+    val threeIntegers = Observable.range(1, 3).publish()
 
-    threeIntegers.subscribe { i -> println("Observer One: $i") };
+    threeIntegers.subscribe { i -> println("Observer One: $i") }
 
-    threeIntegers.subscribe { i -> println("Observer Two: $i") };
-
+    threeIntegers.subscribe { i -> println("Observer Two: $i") }
     // WARNING When connect is called changes the outcome
-    threeIntegers.connect();
+    threeIntegers.connect()
 
     /*
         Prints
@@ -70,6 +76,8 @@ private fun testConnectableObservable() {
         Observer One: 3
         Observer Two: 3
      */
+
+    sleep(10_000)
 
 }
 
@@ -93,65 +101,146 @@ private fun testWithoutMulticasting() {
             randomInt()
         }
 
-    threeRandoms.subscribe { i -> println("Observer 1: $i") }
-    threeRandoms.subscribe { i -> println("Observer 2: $i") }
+    threeRandoms.subscribe { i -> println("😛 Observer 1: $i") }
+    threeRandoms.subscribe { i -> println("🎃 Observer 2: $i") }
 
     /*
         Prints:
-         map() 1
-        Observer 1:63515
-        map() 2
-        Observer 1:30572
-        map() 3
-        Observer 1:14494
         map() 1
-        Observer 2:87617
+        😛 Observer 1: 67921
         map() 2
-        Observer 2:1974
+        😛 Observer 1: 90654
         map() 3
-        Observer 2:56997
+        😛 Observer 1: 83350
+        map() 1
+        🎃 Observer 2: 985
+        map() 2
+        🎃 Observer 2: 3352
+        map() 3
+        🎃 Observer 2: 6663
      */
 
     /*
        INFO
-        What happens here is that the Observable.range() source will yield two separate emission generators,
+        What happens here is that the Observable.range() source will yield
+        two separate emission generators,
         and each will coldly emit a separate stream for each Observer.
+
         Each stream also has its own separate map() instance,
         hence each Observer gets different random integers.
      */
 }
 
+
+/**
+ * * Everything before `publish()` was consolidated into a single
+ * stream (or more technically, a single proxy Observer).
+ *
+ * * But after `publish()`, it will fork into separate streams for each Observer again
+ */
 private fun testMulticasting() {
 
     println("testMulticasting()")
-
-    val threeRandoms =
-        Observable.range(1, 3).map { i ->
-            println("map() $i")
-            randomInt()
-        }.publish()
-
-    threeRandoms.subscribe { i -> println("Observer 1: $i") }
-    threeRandoms.subscribe { i -> println("Observer 2:$i") }
-    threeRandoms.connect()
-
-    /*
-        Prints:
-        map() 1
-        Observer 1: 72881
-        Observer 2:72881
-        map() 2
-        Observer 1: 42317
-        Observer 2:42317
-        map() 3
-        Observer 1: 38867
-        Observer 2:38867
-     */
 
     /*
         Each Observer got the same three random integers,
         and we have effectively multicast the entire operation right before the two Observers
      */
+
+
+    val threeRandomsWithPublishBeforeMap =
+        Observable
+            .range(1, 3)
+            .publish()
+
+
+    val result = threeRandomsWithPublishBeforeMap
+        .map { i ->
+            println("map() $i")
+            randomInt()
+        }
+
+
+    result.subscribe { i -> println("😛Observer 1: $i") }
+    result.subscribe { i -> println("🎃 Observer 2:$i") }
+    threeRandomsWithPublishBeforeMap.connect()
+
+    /*
+        Prints:
+        map() 1
+        😛Observer 1: 99528
+        map() 1
+        🎃 Observer 2:47752
+        map() 2
+        😛Observer 1: 3828
+        map() 2
+        🎃 Observer 2:87651
+        map() 3
+        😛Observer 1: 86789
+        map() 3
+        🎃 Observer 2:8941
+     */
+
+    /*
+         Observable.range(1, 3)
+                    |
+                    |
+            Emission generator
+                    |
+                    |
+                  publish
+                  /     \
+                 /       \
+                map1    map2
+                 |        |
+             Observer1  Observer2
+
+ */
+
+    println("testMulticasting() with publish same Stream")
+
+    val threeRandoms =
+        Observable.range(1, 3)
+            .map { i ->
+                println("map() $i")
+                randomInt()
+            }
+            .publish()
+
+    threeRandoms.subscribe { i -> println("😛 Observer 1: $i") }
+    threeRandoms.subscribe { i -> println("🎃 Observer 2:$i") }
+    threeRandoms.connect()
+
+/*
+    Prints:
+
+     map() 1
+    😛 Observer 1: 75861
+    🎃 Observer 2:75861
+    map() 2
+    😛 Observer 1: 84842
+    🎃 Observer 2:84842
+    map() 3
+    😛 Observer 1: 2762
+    🎃 Observer 2:2762
+ */
+
+/*
+ Observable.range(1, 3)
+            |
+            |
+    Emission generator
+            |
+            |
+           map
+            |
+            |
+          publish
+          /     \
+         /       \
+   Observer1    Observer2
+
+ */
 }
 
 /**
@@ -169,13 +258,13 @@ private fun testWithoutMulticasting2() {
 
     observable.subscribe { println("Observer2 onSubscribe() result: $it") }
 
-    /*
-        Prints
-        🔧 Memory heavy work is being done val: 0
-        Observer1 onSubscribe() result: 1
-        🔧 Memory heavy work is being done val: 0
-        Observer2 onSubscribe() result: 1
-     */
+/*
+    Prints
+    🔧 Memory heavy work is being done val: 0
+    Observer1 onSubscribe() result: 1
+    🔧 Memory heavy work is being done val: 0
+    Observer2 onSubscribe() result: 1
+ */
 }
 
 /**
@@ -197,12 +286,12 @@ private fun testWithMulticasting2() {
 
     observable.connect()
 
-    /*
-        Prints :
-        🔧 Memory heavy work is being done val: 0
-        Observer1 onSubscribe() result: 1
-        Observer2 onSubscribe() result: 1
-     */
+/*
+    Prints :
+    🔧 Memory heavy work is being done val: 0
+    Observer1 onSubscribe() result: 1
+    Observer2 onSubscribe() result: 1
+ */
 
 }
 

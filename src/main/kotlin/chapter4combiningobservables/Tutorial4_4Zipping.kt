@@ -377,11 +377,14 @@ private fun testZipOperatorAndFlatMap() {
             println("🔜🤑source2 doOnDispose()")
         }
 
-    Observable.zip(source1, source2, BiFunction { str: String, integer: Int ->
-        "$str-$integer"
-    }).flatMap {
-        getUser(it, it)
-    }
+    Observable.zip(source1, source2,
+        BiFunction { str: String, integer: Int ->
+            "$str-$integer"
+        }
+    )
+        .flatMap {
+            getUser(it, it)
+        }
         .doOnComplete {
             println("🚙zip() doOnComplete()")
         }

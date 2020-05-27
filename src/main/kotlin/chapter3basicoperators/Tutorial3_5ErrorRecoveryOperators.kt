@@ -2,6 +2,7 @@ package chapter3basicoperators
 
 import io.reactivex.Observable
 import io.reactivex.ObservableSource
+import java.lang.RuntimeException
 
 
 fun main() {
@@ -22,11 +23,11 @@ fun main() {
 //    Important 🔥🔥
 //    testOnErrorResumeNextWithCondition()
 //    Important 🔥🔥
-//    testOnErrorResumeNextWithConditionAndObservableSource()
+    testOnErrorResumeNextWithConditionAndObservableSource()
 
 
 //     INFO retry
-    testRetryOperator()
+//    testRetryOperator()
 }
 
 
@@ -44,17 +45,17 @@ private fun testOnErrorReturnOperator() {
     // 🔥🔥 onErrorReturn should be after map method(down stream) for error to be caught
     // 🔥🔥🔥 doOnError() should be called after the method that throws error and before onErrorReturn
 
-//    Observable.just(5, 2, 4, 0, 3, 2, 8)
-//        .map { i -> 10 / i }
-//        .onErrorReturnItem(-1)
-//        .subscribe(
-//            { i ->
-//                println("RECEIVED: $i")
-//            },
-//            { e ->
-//                println("RECEIVED ERROR: $e")
-//            }
-//        )
+    Observable.just(5, 2, 4, 0, 3, 2, 8)
+        .map { i -> 10 / i }
+        .onErrorReturnItem(-1)
+        .subscribe(
+            { i ->
+                println("RECEIVED: $i")
+            },
+            { e ->
+                println("RECEIVED ERROR: $e")
+            }
+        )
     /*
         Prints:
         RECEIVED: 2
@@ -178,7 +179,8 @@ private fun testOnErrorResumeNextOperator() {
         .onErrorResumeNext(Observable.just(-1).repeat(3))
         .subscribe(
             { i -> println("RECEIVED: $i") },
-            { e -> println("RECEIVED ERROR: $e") }
+            { e -> println("RECEIVED ERROR: $e") },
+            { println("💀 subscribe()-> onComplete()")}
         )
 
     /*
@@ -189,9 +191,10 @@ private fun testOnErrorResumeNextOperator() {
         RECEIVED: -1
         RECEIVED: -1
         RECEIVED: -1
+        💀 subscribe()-> onComplete()
      */
 
-    // INFO Observable.empty does not emit any value
+    // 🔥 INFO Observable.empty does not emit any value but lets onComplete in subscribe to be called
     println("🔧 With Observable.empty()")
 
     Observable.just(5, 2, 4, 0, 3, 2, 8)
@@ -199,14 +202,17 @@ private fun testOnErrorResumeNextOperator() {
         .onErrorResumeNext(Observable.empty())
         .subscribe(
             { i -> println("RECEIVED: $i") },
-            { e -> println("RECEIVED ERROR: $e") }
+            { e -> println("RECEIVED ERROR: $e") },
+            { println("🤬 subscribe()-> onComplete()")}
         )
+
 
     /*
         Prints:
         RECEIVED: 2
         RECEIVED: 5
         RECEIVED: 2
+        🤬 subscribe()-> onComplete()
      */
 
 }
@@ -291,6 +297,19 @@ private fun testOnErrorResumeNextWithCondition() {
             { e -> println("RECEIVED ERROR: $e") }
         )
 
+    /*
+        Prints:
+
+        RECEIVED: 2
+        RECEIVED: 5
+        RECEIVED: 2
+        doOnError() throwable: / by zero
+        RECEIVED: 10
+        RECEIVED: 20
+        RECEIVED: 30
+
+     */
+
 }
 
 private fun testOnErrorResumeNextWithConditionAndObservableSource() {
@@ -299,7 +318,7 @@ private fun testOnErrorResumeNextWithConditionAndObservableSource() {
 
     Observable.just(5, 2, 4, 0, 3, 2, 8)
         .map {
-            if (it == 0) throw ArithmeticException("Can not be 0")
+            if (it == 0) throw ArithmeticException("Can not divide by Zero")
             it
         }
         .doOnError {
@@ -322,6 +341,15 @@ private fun testOnErrorResumeNextWithConditionAndObservableSource() {
             { i -> println("RECEIVED: $i") },
             { e -> println("RECEIVED ERROR: $e") }
         )
+
+    /*
+        Prints:
+        RECEIVED: 5
+        RECEIVED: 2
+        RECEIVED: 4
+        doOnError() throwable: Can not divide by Zero
+        RECEIVED: 500
+     */
 }
 
 

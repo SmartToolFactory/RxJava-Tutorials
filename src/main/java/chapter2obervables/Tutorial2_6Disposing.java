@@ -8,6 +8,7 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.observers.ResourceObserver;
 
+import java.util.HashSet;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.Thread.sleep;

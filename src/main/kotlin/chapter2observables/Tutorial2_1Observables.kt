@@ -22,7 +22,6 @@ private fun testObservableCreate() {
         emitter.onComplete()
     }
 
-
 //    // INFO Method1 Subscribe with Consumer object onNext
 //    source.subscribe(object : Consumer<String> {
 //        override fun accept(s: String) {

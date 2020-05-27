@@ -16,10 +16,10 @@ fun main() {
 
 
     // Hot Observables
-//        testConnectObservable();
+        testConnectObservable()
 //        testConnectObservableCreate()
 //    testConnectObservableInterval()
-    testConnectObservableInterval2()
+//    testConnectObservableInterval2()
 }
 
 
@@ -216,11 +216,13 @@ private fun testColdObservableCreate() {
 private fun testConnectObservable() {
 
     println("testConnectObservable()")
-    val source = Observable.just("Alpha", "Beta", "Gamma", "Delta", "Epsilon")
+    val source = Observable
+        .just("Alpha", "Beta", "Gamma", "Delta", "Epsilon")
         .publish()
 
     //Set up observer 1
     source.subscribe { s -> println("Observer 1: $s") }
+
     //Set up observer 2
     source.map { it.length }
         .subscribe { i -> println("Observer 2: " + i!!) }

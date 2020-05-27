@@ -13,9 +13,9 @@ fun main() {
     // INFO merge
 //    testMergeOperator()
 //    testMergeArrayOperator()
-    testMergeOperatorWithList()
+//    testMergeOperatorWithList()
 //    testMergeOperatorInterval()
-
+//    testMergeOperatorIntervalWithFiniteSource()
     // INFO mergeWith
 //    testMergeWithOperator()
 
@@ -26,6 +26,7 @@ fun main() {
 //    testFlatMapPerson()
 
 //    testFlatMapVsConcatMap()
+//    testFlatMapVsSwitchMap()
 
 //    testFlatMapOperatorWithInterval()
 }
@@ -62,8 +63,6 @@ private fun testMergeOperator() {
      */
 
     // 🔥🔥🔥 WARNING merge operator waits until first stream ends and merges next one after that
-
-
 }
 
 
@@ -174,6 +173,45 @@ private fun testMergeOperatorInterval() {
 
 }
 
+/**
+ * Even if one source is infinite like interval it continues emission until canceled
+ */
+private fun testMergeOperatorIntervalWithFiniteSource() {
+
+    //emit every second
+    val source1 = Observable.interval(1, TimeUnit.SECONDS)
+        .map { l -> l + 1 } // emit elapsed seconds
+        .map { l -> "Source1: $l seconds" }
+
+    val source2 = Observable.just(1, 2, 3, 4)
+
+    //merge and subscribe
+    Observable.merge(source1, source2)
+        .doFinally {
+            println("doFinally()")
+        }
+        .subscribe {
+            println(it)
+        }
+
+    sleep(10_000)
+
+    /*
+        Prints:
+
+        1
+        2
+        3
+        4
+        Source1: 1 seconds
+        Source1: 2 seconds
+        Source1: 3 seconds
+        Source1: 4 seconds
+        ...
+     */
+
+}
+
 private fun testMergeWithOperator() {
 
     val source1 = Observable.just("Alpha", "Beta", "Gamma", "Delta", "Epsilon")
@@ -185,6 +223,20 @@ private fun testMergeWithOperator() {
             println("doOnFinally()")
         }
         .subscribe { i -> println("RECEIVED: $i") }
+
+    /*
+        Prints:
+        RECEIVED: Alpha
+        RECEIVED: Beta
+        RECEIVED: Gamma
+        RECEIVED: Delta
+        RECEIVED: Epsilon
+
+        RECEIVED: Zeta
+        RECEIVED: Eta
+        RECEIVED: Theta
+        doOnFinally()
+     */
 
 }
 
@@ -213,7 +265,9 @@ private fun testFlatMapOperator() {
 
     val source = Observable.just("Alpha")
 
-    source.flatMap { s -> Observable.fromArray(*s.split("".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()) }
+    source.flatMap { s ->
+        Observable.fromArray(*s.split("".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray())
+    }
         .subscribe {
             println(it)
         }
@@ -297,6 +351,13 @@ private fun testFlatMapOperator2() {
 
 }
 
+fun testSpreadOperatorWithVarArg(vararg items: String) {
+
+    items.forEach {
+        println("$it")
+    }
+}
+
 
 private fun testFlatMapVsConcatMap() {
 
@@ -304,7 +365,7 @@ private fun testFlatMapVsConcatMap() {
 
 
     val items = arrayOf("a", "b", "c", "d", "e", "f")
-
+    testSpreadOperatorWithVarArg(*items)
 
     val scheduler = TestScheduler()
 
@@ -343,6 +404,51 @@ private fun testFlatMapVsConcatMap() {
     /*
         Prints randomly:
         onNext() [bx, ex, fx, ax, dx, cx]
+     */
+
+}
+
+private fun testFlatMapVsSwitchMap() {
+
+    println("testFlatMapVsSwitchMap()")
+
+
+    val items = arrayOf("a", "b", "c", "d", "e", "f")
+
+
+    val scheduler = TestScheduler()
+
+    Observable.fromArray(*items)
+        .flatMap { s ->
+            val delay = Random().nextInt(10)
+            Observable.just(s + "x")
+                .delay(delay.toLong(), TimeUnit.SECONDS, scheduler)
+        }
+        .toList()
+        .subscribe { strings -> println("flatMap onNext() : $strings") }
+
+    scheduler.advanceTimeBy(1, TimeUnit.MINUTES)
+
+    /*
+         Prints randomly:
+         flatMap onNext() [bx, ex, fx, ax, dx, cx]
+      */
+
+
+    Observable.fromArray(*items)
+        .switchMap { s ->
+            val delay = Random().nextInt(10)
+            Observable.just(s + "x")
+                .delay(delay.toLong(), TimeUnit.SECONDS, scheduler)
+        }
+        .toList()
+        .subscribe { strings -> println("switchMap onNext() $strings") }
+
+    scheduler.advanceTimeBy(1, TimeUnit.MINUTES)
+
+    /*
+         Prints:
+         switchMap onNext() [fx]
      */
 
 }

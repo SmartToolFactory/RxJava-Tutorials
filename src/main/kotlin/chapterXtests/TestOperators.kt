@@ -118,3 +118,25 @@ private fun flatMapIterableOperator() {
     }
 
 }
+
+private fun delayEachItemWithConcatMap() {
+
+    val source1 = Observable.just("A", "B", "C", "D", "E")
+
+    source1.concatMap {
+        Observable.just(it)
+//            .map {
+//                println("🤝Before delay $it")
+//                it
+//            }
+            .delay(1, TimeUnit.SECONDS)
+//            .map {
+//                println("🤪 After delay $it")
+//                it
+//            }
+    }
+        .blockingSubscribe {
+            println("Item: $it")
+        }
+
+}

@@ -76,7 +76,8 @@ private fun testFilterOperator() {
 🔥 INFO take()
 
 The **take()** operator has two overloads.
-One will take a specified number of emissions and then call **onComplete()** after it captures all of them.
+One will take a specified number of emissions and then call **onComplete()**
+after it captures all of them.
 It will also dispose of the entire subscription so that no more emissions will occur.
 For instance, take(3) will emit the first three emissions and then call the onComplete() event.
  */
@@ -98,9 +99,11 @@ private fun testTakeOperator() {
 
 /**
  * The other overload will take emissions within a specific time duration and then call **onComplete()**.
- * Of course, our **cold**🥶 Observable here will emit so quickly that it would serve as a bad example for this case.
+ * Of course, our **cold**🥶 Observable here will emit so quickly that it would serve
+ * as a bad example for this case.
  * Maybe a better example would be to use an **Observable.interval()** function.
- * Let's emit every 300 milliseconds, but take() emissions for only 2 seconds in the following code snippet:
+ * Let's emit every 300 milliseconds, but take() emissions for only 2 seconds in
+ * the following code snippet:
  */
 private fun testTakeOperatorWithInterval() {
     Observable.interval(300, TimeUnit.MILLISECONDS)
@@ -263,12 +266,14 @@ private fun testDistinctOperator3() {
  *
  * The **distinctUntilChanged()** function will ignore duplicate consecutive emissions.
  * It is a helpful way to ignore repetitions until they change.
- * If the same value is being emitted repeatedly, all the duplicates will be ignored until a new value is emitted.
+ * If the same value is being emitted repeatedly, all the duplicates will
+ * be ignored until a new value is emitted.
  * Duplicates of the next value will be ignored until it changes again, and so on.
  */
 private fun testDistinctUntilChanged() {
 
-    Observable.just(1, 1, 1, 2, 2, 3, 3, 2, 1, 1)
+    Observable
+        .just(1, 1, 1, 2, 2, 3, 3, 2, 1, 1)
         .distinctUntilChanged()
         .subscribe { i -> println("RECEIVED: $i") }
 

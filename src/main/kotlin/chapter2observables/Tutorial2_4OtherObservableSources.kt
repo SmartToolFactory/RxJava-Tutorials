@@ -1,5 +1,6 @@
 package chapter2observables
 
+import io.reactivex.Completable
 import io.reactivex.Observable
 import io.reactivex.functions.Action
 import io.reactivex.functions.Consumer
@@ -106,7 +107,7 @@ private fun testObservableFuture() {
         @Throws(InterruptedException::class, ExecutionException::class, TimeoutException::class)
         override fun get(timeout: Long, unit: TimeUnit): String {
             Thread.sleep(5000)
-            return "I am from the future"
+            return "I am from the future with timeout: $timeout"
         }
 
     }

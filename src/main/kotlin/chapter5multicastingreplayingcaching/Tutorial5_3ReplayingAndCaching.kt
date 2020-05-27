@@ -4,11 +4,21 @@ import io.reactivex.Observable
 import java.lang.Thread.sleep
 import java.util.concurrent.TimeUnit
 
+/*
+    1 share() and cache() are also options,
+     but they are basically just shortcuts around ConnectableObservable.
+
+     share() is just publish().refCount()
+
+     and cache() can be recreated by using replay().autoConnect().
+
+
+ */
 fun main() {
 
     // INFO replay
-//    testReplayOperatorWithNoArguments()
-    testReplayWithArguments()
+    testReplayOperatorWithNoArguments()
+//    testReplayWithArguments()
 //    testReplayWithArguments2()
 
     // cache
@@ -34,7 +44,7 @@ private fun testReplayOperatorWithNoArguments() {
     //Observer 1
     seconds.subscribe { i -> println("🚗 Observer 1: $i") }
 
-    sleep(3000)
+    sleep(4000)
 
     //Observer 2
     seconds.subscribe { i -> println("🤑 Observer 2: $i") }
@@ -57,7 +67,7 @@ private fun testReplayOperatorWithNoArguments() {
         🤑 Observer 2: 5
      */
 
-    // INFO Observer 2 gets all emissions tha previously fired at once
+    // 🔥 INFO Observer 2 gets all emissions tha previously fired at once
 }
 
 private fun testReplayWithArguments() {

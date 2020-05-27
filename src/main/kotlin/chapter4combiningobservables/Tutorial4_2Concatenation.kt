@@ -1,6 +1,7 @@
 package chapter4combiningobservables
 
 import io.reactivex.Observable
+import java.util.concurrent.TimeUnit
 
 fun main() {
 
@@ -8,7 +9,10 @@ fun main() {
 //    testConcatOperator()
 
     // INFO concatMap()
-    testConcatMapOperator()
+//    testConcatMapOperator()
+
+    // INFO delay each with concatMap()
+//    delayEachItemWithConcatMap()
 
 }
 
@@ -75,6 +79,29 @@ private fun testConcatMapOperator() {
             {},
             {println("onComplete()")}
         )
+
+}
+
+
+private fun delayEachItemWithConcatMap() {
+
+    val source1 = Observable.just("A", "B", "C", "D", "E")
+
+    source1.concatMap {
+        Observable.just(it)
+//            .map {
+//                println("🤝Before delay $it")
+//                it
+//            }
+            .delay(1, TimeUnit.SECONDS)
+//            .map {
+//                println("🤪 After delay $it")
+//                it
+//            }
+    }
+        .blockingSubscribe {
+            println("Item: $it")
+        }
 
 }
 

@@ -13,7 +13,7 @@ fun main() {
 //    testMapOperator()
 
     // INFO startWith
-//    testStartWithOperator()
+    testStartWithOperator()
 
     // INFO defaultIfEmpty
 //    testDefaultIfEmptyOperator()
@@ -34,7 +34,7 @@ fun main() {
     // INFO scan
 //    testScanOperator()
 //    testScanOperatorWithString()
-    testScanOperatorFibonacci()
+//    testScanOperatorFibonacci()
 
 }
 
