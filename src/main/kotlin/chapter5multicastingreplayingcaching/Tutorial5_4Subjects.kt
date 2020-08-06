@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit
  */
 fun main() {
     // INFO PublishSubject
-    testPublishSubject()
+//    testPublishSubject()
 
 //    testSubjectAsObserver()
 
@@ -29,11 +29,11 @@ fun main() {
 //    testReplaySubject()
 
     // INFO AsyncSubject
-//    testAsyncSubject()
+    testAsyncSubject()
 
     // INFO UnicastSubject
 //    testUnicastSubject()
-    testUnicastSubjectWithMultipleObservers()
+//    testUnicastSubjectWithMultipleObservers()
 }
 
 
@@ -153,12 +153,14 @@ fun testSubjectAsObserver() {
 
 /**
  * A critical gotcha to note with Subjects is this: the onSubscribe(), onNext(), onError(),
- * and onComplete() calls are not threadsafe! If you have multiple threads calling these four methods,
- * emissions could start to overlap and break the Observable contract, which demands that emissions happen sequentially.
+ * and onComplete() calls are not threadsafe!
+ * If you have multiple threads calling these four methods,
+ * emissions could start to overlap and break the Observable contract,
+ * which demands that emissions happen sequentially.
  *
  * If this happens, a good practice to adopt is to call toSerialized() on Subject to yield a safely
- * serialized Subject implementation (backed by the private SerializedSubject). This will safely sequentialize concurrent
- * event calls so no train wrecks occur downstream:
+ * serialized Subject implementation (backed by the private SerializedSubject).
+ * This will safely sequentialize concurrent event calls so no train wrecks occur downstream:
 
  */
 private fun testSubjectSerialization() {
@@ -187,7 +189,8 @@ private fun testSubjectSerialization() {
  *
  * BehaviorSubject will replay the last emitted item to each new Observer downstream.
  * This is somewhat like putting replay(1).autoConnect() after a PublishSubject,
- * but it consolidates these operations into a single optimized Subject implementation that subscribes eagerly to the source:
+ * but it consolidates these operations into a single optimized Subject implementation
+ * that subscribes eagerly to the source:
  */
 private fun testBehaviorSubject() {
 
@@ -269,7 +272,6 @@ fun testAsyncSubject() {
     subject.onNext("Beta")
     subject.onNext("Gamma")
 
-    subject.onComplete()
 
     subject.subscribe(
         {
@@ -284,6 +286,12 @@ fun testAsyncSubject() {
 
         }
     )
+
+
+    sleep(3000)
+    subject.onComplete()
+    sleep(3000)
+
 
     // 🔥 Invoking takeLast(1).replay(1) on Observable gives the same result
 

@@ -15,7 +15,7 @@ fun main() {
 //    testMergeArrayOperator()
 //    testMergeOperatorWithList()
 //    testMergeOperatorInterval()
-//    testMergeOperatorIntervalWithFiniteSource()
+    testMergeOperatorIntervalWithFiniteSource()
     // INFO mergeWith
 //    testMergeWithOperator()
 
@@ -62,7 +62,10 @@ private fun testMergeOperator() {
         RECEIVED: Theta
      */
 
-    // 🔥🔥🔥 WARNING merge operator waits until first stream ends and merges next one after that
+    /*
+        🔥🔥🔥 WARNING merge operator waits until first stream ends
+        and merges next one after that if both streams are FINITE
+     */
 }
 
 
@@ -319,6 +322,35 @@ private fun testFlatMapPerson() {
 
 private fun testFlatMapOperator2() {
 
+    // 🔥 WARNING This one delays the emission then emits all values at once
+    delayEachItemWithFlatMap()
+
+    delayWithFlatMap()
+
+
+    sleep(5000)
+
+
+}
+
+/**
+ * Delays each item inside [Observable.flatMap] before emitting
+ */
+private fun delayWithFlatMap() {
+    val listOfPeople = listOf("Alan", "Bob", "Cobb", "Dan", "Evan", "Finch")
+
+
+    Observable.fromIterable(listOfPeople)
+        .map {
+            it.toUpperCase()
+        }
+        .delay(Random().nextInt(5).toLong(), TimeUnit.SECONDS)
+        .subscribe {
+            println("with map() $it")
+        }
+}
+
+private fun delayEachItemWithFlatMap() {
     val listOfPeople = listOf("Alan", "Bob", "Cobb", "Dan", "Evan", "Finch")
 
     // 🔥 WARNING This one delays each emission
@@ -332,23 +364,6 @@ private fun testFlatMapOperator2() {
         .subscribe {
             println("flatMap() $it")
         }
-
-
-    // 🔥 WARNING This one delays the emission then emits all values at once
-
-    Observable.fromIterable(listOfPeople)
-        .map {
-            it.toUpperCase()
-        }
-        .delay(Random().nextInt(5).toLong(), TimeUnit.SECONDS)
-        .subscribe {
-            println("with map() $it")
-        }
-
-
-    sleep(5000)
-
-
 }
 
 fun testSpreadOperatorWithVarArg(vararg items: String) {

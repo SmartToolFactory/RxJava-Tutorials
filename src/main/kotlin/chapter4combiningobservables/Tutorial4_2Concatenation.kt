@@ -7,6 +7,9 @@ fun main() {
 
     // INFO concat
 //    testConcatOperator()
+//    testConcatOperatorWithList()
+    testConcatOperatorInterval()
+//    testConcatOperatorIntervalWithFiniteSource()
 
     // INFO concatMap()
 //    testConcatMapOperator()
@@ -46,12 +49,130 @@ private fun testConcatOperator() {
 
     /*
       INFO
-       Observable.concat() should be used to guarantee emission ordering, as merging does not guarantee it.
+       Observable.concat() should be used to guarantee emission ordering,
+       as merging does not guarantee it.
      */
 
     // INFO concatWith
 //    source1.concatWith(source2)
 //        .subscribe { i -> println("RECEIVED: $i") }
+}
+
+
+private fun testConcatOperatorWithList() {
+
+    val source1 = Observable.just("Alpha", "Beta")
+    val source2 = Observable.just("Gamma", "Delta")
+    val source3 = Observable.just("Epsilon", "Zeta")
+    val source4 = Observable.just("Eta", "Theta")
+    val source5 = Observable.just("Iota", "Kappa")
+
+    val sources = listOf(source1, source2, source3, source4, source5)
+
+    Observable.concat(sources).subscribe { i -> println("🚗 onNext(): $i") }
+
+    /*
+        Prints:
+        🚗 onNext(): Alpha
+        🚗 onNext(): Beta
+        🚗 onNext(): Gamma
+        🚗 onNext(): Delta
+        🚗 onNext(): Epsilon
+        🚗 onNext(): Zeta
+        🚗 onNext(): Eta
+        🚗 onNext(): Theta
+        🚗 onNext(): Iota
+        🚗 onNext(): Kappa
+     */
+}
+
+
+private fun testConcatOperatorInterval() {
+
+    //emit every second
+    val source1 = Observable.interval(1, TimeUnit.SECONDS)
+            .map { l -> l + 1 } // emit elapsed seconds
+            .map { l -> "Source1: $l seconds" }
+
+    //emit every 300 milliseconds
+    val source2 = Observable.interval(300, TimeUnit.MILLISECONDS)
+            .map { l -> (l + 1) * 300 } // emit elapsed milliseconds
+            .map { l -> "Source2: $l milliseconds" }
+
+    //merge and subscribe
+    Observable.concat(source1, source2)
+            .subscribe {
+                println(it)
+            }
+
+    //keep alive for 3 seconds
+    Thread.sleep(3000)
+
+    /*
+    🔥🔥🔥 WARNING concat operator waits until first stream ends, so the FIST INFINITE stream
+    is emitted, but not the other ones
+ */
+
+    /*
+        Observable.concat(source1, source2)
+        Prints:
+        Source1: 1 seconds
+        Source1: 2 seconds
+        Source1: 3 seconds
+
+        Observable.concat(source2, source1)
+        Prints:
+        Source2: 300 milliseconds
+        Source2: 600 milliseconds
+        Source2: 900 milliseconds
+        Source2: 1200 milliseconds
+        Source2: 1500 milliseconds
+        Source2: 1800 milliseconds
+        Source2: 2100 milliseconds
+        Source2: 2400 milliseconds
+        Source2: 2700 milliseconds
+        Source2: 3000 milliseconds
+
+     */
+
+}
+
+private fun testConcatOperatorIntervalWithFiniteSource() {
+
+    //emit every second
+    val source1 = Observable.interval(1, TimeUnit.SECONDS)
+            .map { l -> l + 1 } // emit elapsed seconds
+            .map { l -> "Source1: $l seconds" }
+
+    val source2 = Observable.just(1, 2, 3, 4)
+
+    //merge and subscribe
+    Observable.concat(source1, source2)
+            .doFinally {
+                println("doFinally()")
+            }
+            .subscribe {
+                println(it)
+            }
+
+    Thread.sleep(10_000)
+
+    // 🔥🔥🔥 WARNING Does not start emitting source2 while INFINITE stream is emitting
+
+    /*
+        Prints:
+        Source1: 1 seconds
+        Source1: 2 seconds
+        Source1: 3 seconds
+        Source1: 4 seconds
+        Source1: 5 seconds
+        Source1: 6 seconds
+        Source1: 7 seconds
+        Source1: 8 seconds
+        Source1: 9 seconds
+        Source1: 10 seconds
+     */
+
 }
 
 
