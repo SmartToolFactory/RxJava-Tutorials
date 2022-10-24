@@ -16,6 +16,21 @@ import io.reactivex.schedulers.Schedulers
 fun main() {
 
 
+    Observable.just(1)
+        .map {
+            println("🔥Map1 Thread ${Thread.currentThread().name}")
+            it
+        }
+        .observeOn(Schedulers.io())
+        .map {
+        println("🔥Map2 Thread ${Thread.currentThread().name}")
+            it
+        }
+        .subscribe {
+            println("Subcribe in ${Thread.currentThread().name}")
+        }
+
+    Thread.sleep(1000)
 //    observableLifeCycle()
 
     // INFO map
@@ -23,7 +38,7 @@ fun main() {
 //    observableLifeCycleWithMap2()
 
     // INFO flatMap
-    observableLifeCycleWithFlatMap()
+//    observableLifeCycleWithFlatMap()
 }
 
 
@@ -211,7 +226,6 @@ private fun observableLifeCycleWithMap() {
      */
 
 }
-
 
 /**
  * Order of map operator determines what side-effects will receive and in which order

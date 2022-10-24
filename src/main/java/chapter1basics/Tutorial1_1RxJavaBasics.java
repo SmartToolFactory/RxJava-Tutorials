@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
+import io.reactivex.Observer;
 import io.reactivex.Single;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Action;
@@ -23,16 +24,18 @@ public class Tutorial1_1RxJavaBasics {
 
     public static void main(String[] args) {
         System.out.println("Initialized...");
-//        fakeUserInputWithInterval().blockingSubscribe(line -> System.out.println("Number: " + line));
+//        fakeUserInputWithInterval()
+//                .blockingSubscribe(line -> System.out.println("Number: " + line));
+
 //        testSingle();
 
-        testObservable();
+//        testObservable();
 
 //        testCreate();
 
 //        testFromIterable();
 
-//        testMultipleSubscription();
+        testMultipleSubscription();
 
 //        testMapOperator();
 
@@ -44,15 +47,14 @@ public class Tutorial1_1RxJavaBasics {
     public static Observable<Integer> fakeUserInput() {
         Random random = new Random();
 
-        return Observable.just(10, 17, 3, 8)
+        return Observable
+                .just(10, 17, 3, 8)
                 .map(number -> random.nextInt(50));
     }
 
     private static Observable<Integer> fakeUserInputWithInterval() {
-        Random random = new Random();
-
-
-        return Observable.intervalRange(100, 5, 500, 500, TimeUnit.MILLISECONDS)
+        return Observable
+                .intervalRange(100, 5, 500, 500, TimeUnit.MILLISECONDS)
                 .map(Long::intValue);
     }
 
@@ -255,8 +257,8 @@ public class Tutorial1_1RxJavaBasics {
 //                    if (name.endsWith("x")) {
 //                        throw new RuntimeException("What a terrible failure!");
 //                    }
-            return name.toUpperCase();
-        })
+                    return name.toUpperCase();
+                })
                 // Use doOnNext, doOnComplete and doOnError to print messages
                 // on each item, when the stream complete, and when an error occurs
                 .doOnNext(s -> System.out.println(">> " + s))
@@ -301,15 +303,15 @@ public class Tutorial1_1RxJavaBasics {
     private static void testMapOperator() {
 
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("M/d/yyyy");
-                Observable.just("1/3/2016", "5/9/2016", "10/12/2016")
-                        .map(s -> LocalDate.parse(s, dtf))
-                        .subscribe(i -> System.out.println("RECEIVED: " + i));
+        Observable.just("1/3/2016", "5/9/2016", "10/12/2016")
+                .map(s -> LocalDate.parse(s, dtf))
+                .subscribe(i -> System.out.println("RECEIVED: " + i));
     }
 
 
     private static void testScanOperator() {
         Disposable disposable = Observable.just(
-                "Alpha", "Beta", "Gamma", "Delta", "Epsilon")
+                        "Alpha", "Beta", "Gamma", "Delta", "Epsilon")
                 .scan(0, new BiFunction<Integer, String, Integer>() {
                     @Override
                     public Integer apply(Integer integer, String s) throws Exception {

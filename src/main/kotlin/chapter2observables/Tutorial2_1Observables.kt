@@ -6,7 +6,8 @@ import io.reactivex.functions.Function
 fun main() {
 //    testObservableCreate()
 //    testObservableCreateWithTry()
-    testObservableWithOperator()
+//    testObservableWithOperator()
+    testObservableJust()
 
 }
 

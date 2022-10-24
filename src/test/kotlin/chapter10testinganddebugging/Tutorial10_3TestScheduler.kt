@@ -48,6 +48,7 @@ class Tutorial10_3TestScheduler {
         //Assert 90 emissions have occurred
         testObserver.assertValueCount(90)
 
+
         testObserver.dispose()
 
     }

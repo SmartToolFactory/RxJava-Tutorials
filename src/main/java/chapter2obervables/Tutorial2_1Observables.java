@@ -13,9 +13,9 @@ public class Tutorial2_1Observables {
 
     public static void main(String[] args) {
 
-//        testObservableCreate();
+        testObservableCreate();
 //        testObservableCreateWithTry();
-        testObservableWithOperators();
+//        testObservableWithOperators();
 
     }
 

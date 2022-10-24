@@ -16,8 +16,8 @@ fun main() {
 
 
     // Hot Observables
-        testConnectObservable()
-//        testConnectObservableCreate()
+//        testConnectObservable()
+        testConnectObservableCreate()
 //    testConnectObservableInterval()
 //    testConnectObservableInterval2()
 }
@@ -216,7 +216,7 @@ private fun testColdObservableCreate() {
 private fun testConnectObservable() {
 
     println("testConnectObservable()")
-    val source = Observable
+    val source: ConnectableObservable<String> = Observable
         .just("Alpha", "Beta", "Gamma", "Delta", "Epsilon")
         .publish()
 
@@ -244,12 +244,12 @@ private fun testConnectObservableCreate() {
         }
     }
 
-
     val subscriber1 = Consumer<Int> { integer -> println("Subscriber 1 :" + integer!!) }
     val subscriber2: (Int) -> Unit = { integer -> println("Subscriber 2 :" + integer!!) }
 
-    // 🔥 WARNING: invoking cold.publish() and contactable.connect() causes the observable will emit all the items even if there is no subscriber yet.
-    val contactable = cold.publish()
+    // 🔥 WARNING: invoking cold.publish() and contactable.connect() causes the observable
+    // will emit all the items even if there is no subscriber yet.
+    val contactable: ConnectableObservable<Int> = cold.publish()
 
     contactable.subscribe(subscriber1)
     contactable.subscribe(subscriber2)
